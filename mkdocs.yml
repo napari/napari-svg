@@ -1,0 +1,10 @@
+site_name: napari-svg
+site_description: An io plugin for reading and writing svg files with napari
+site_author: Nicholas Sofroniew
+
+theme: readthedocs
+
+repo_url: https://github.com/sofroniewn/napari-svg
+
+pages:
+- Home: index.md
