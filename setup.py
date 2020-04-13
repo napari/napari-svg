@@ -12,7 +12,7 @@ def read(fname):
 
 
 # Add your dependencies here
-install_requires = []
+install_requires = ['vispy>=0.6.4', 'imageio>=2.5.0', 'numpy>=1.10.0']
 
 install_requires += ['napari>=0.2.12'],
 
