@@ -1,0 +1,4 @@
+imageio>=2.5.0
+numpy>=1.10.0
+napari_plugins >= 0.1.0
+vispy >= 0.6.4

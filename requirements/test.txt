@@ -1,0 +1,2 @@
+pytest
+napari>=0.2.12
