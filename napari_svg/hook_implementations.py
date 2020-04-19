@@ -33,6 +33,13 @@ def napari_get_writer(path, layer_types):
         if lt not in supported_layers:
             return None
 
+    ext = os.path.splitext(path)[1]
+    if ext == '':
+        path = path + '.svg'
+    elif ext != '.svg':
+        # If an extension is provided then it must be `.svg`
+        return None
+
     return writer
 
 
@@ -41,14 +48,14 @@ def writer(path, layer_data):
     """
     if len(layer_data) == 0:
         return True
-
+    
     ext = os.path.splitext(path)[1]
     if ext == '':
         path = path + '.svg'
     elif ext != '.svg':
         # If an extension is provided then it must be `.svg`
         return False
-    
+
     # Generate xml list and data extrema for all layers
     full_xml_list = []
     full_extrema = None
