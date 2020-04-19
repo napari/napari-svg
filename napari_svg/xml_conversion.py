@@ -80,12 +80,38 @@ def image_to_xml(data, meta):
         Extrema of data, specified as a minumum then maximum of the (x, y)
         coordinates.
     """
+    # Extract metadata parameters
+    if 'is_pyramid' in meta:
+        is_pyramid = meta['is_pyramid']
+    else:
+        is_pyramid = False
+
+    if 'rgb' in meta:
+        rgb = meta['rgb']
+    else:
+        rgb = False
+
+    if 'contrast_limits' in meta:
+        contrast_limits = meta['contrast_limits']
+    else:
+        contrast_limits = [0, 1]
+
+    if 'colormap_name' in meta:
+        colormap_name = meta['colormap_name']
+    else:
+        colormap_name = 'gray'
+
+    if 'opacity' in meta:
+        opacity = meta['opacity']
+    else:
+        opacity = 1
+
     # Check if data is a pyramid, and if so take only last layer
-    if meta['is_pyramid']:
+    if is_pyramid:
         data = data[-1]
 
     # Check if more than 2 dimensional and if so error.
-    if data.ndim - int(meta['rgb']) > 2:
+    if data.ndim - int(rgb) > 2:
         raise ValueError('Data must be 2 dimensional to save to svg')
     else:
         image = data
@@ -93,12 +119,7 @@ def image_to_xml(data, meta):
     # Find extrema of data
     extrema = np.array([[0, 0], [image.shape[0], image.shape[1]]])
 
-    # Extract used metadata parameters
-    contrast_limits = meta['contrast_limits']
-    colormap_name = meta['colormap']
-    opacity=str(meta['opacity'])
-
-    if meta['rgb']:
+    if rgb:
         mapped_image = image
     else:
         # apply contrast_limits to data
@@ -125,7 +146,7 @@ def image_to_xml(data, meta):
     height = str(image.shape[0])
 
     xml = Element(
-        'image', width=width, height=height, opacity=opacity, **props
+        'image', width=width, height=height, opacity=str(opacity), **props
     )
     xml_list = [xml]
     
@@ -155,6 +176,33 @@ def points_to_xml(data, meta):
         Extrema of data, specified as a minumum then maximum of the (x, y)
         coordinates.
     """
+    # Extract metadata parameters
+    if 'size' in meta:
+        size = np.mean(meta['size'], axis=1)
+    else:
+        size = np.ones(data.shape[0])
+
+    if 'face_color' in meta:
+        face_color = meta['face_color']
+    else:
+        face_color = np.ones((data.shape[0], 4))
+
+    if 'edge_color' in meta:
+        edge_color = meta['edge_color']
+    else:
+        edge_color = np.zeros((data.shape[0], 4))
+        edge_color[:, 3] = 1
+
+    if 'edge_width' in meta:
+        edge_width = meta['edge_width']
+    else:
+        edge_width = 1
+
+    if 'opacity' in meta:
+        opacity = meta['opacity']
+    else:
+        opacity = 1
+
     # Check if more than 2 dimensional and if so error.
     if data.shape[1] > 2:
         raise ValueError('Data must be 2 dimensional to save to svg')
@@ -164,14 +212,7 @@ def points_to_xml(data, meta):
     # Find extrema of data
     extrema = np.array([points.min(axis=0), points.max(axis=0)])
 
-    # Extract used metadata parameters
-    size = np.mean(meta['size'], axis=1)
-    face_color = meta['face_color']
-    edge_color = meta['edge_color']
-    edge_width = str(meta['edge_width'])
-    opacity=str(meta['opacity'])
-
-    props = {'stroke-width': edge_width, 'opacity': opacity}
+    props = {'stroke-width': str(edge_width), 'opacity': str(opacity)}
 
     xml_list = []
     for p, s, fc, ec in zip(points, size, face_color, edge_color):

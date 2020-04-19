@@ -4,6 +4,7 @@
 import os
 import codecs
 from setuptools import setup
+import os.path as osp
 
 
 def read(fname):
@@ -12,9 +13,13 @@ def read(fname):
 
 
 # Add your dependencies here
-install_requires = ['vispy>=0.6.4', 'imageio>=2.5.0', 'numpy>=1.10.0']
-
-install_requires += ['napari>=0.2.12'],
+requirements = []
+with open(osp.join('requirements', 'default.txt')) as f:
+    for line in f:
+        splitted = line.split("#")
+        stripped = splitted[0].strip()
+        if len(stripped) > 0:
+            requirements.append(stripped)
 
 
 setup(
@@ -30,7 +35,7 @@ setup(
     long_description=read('README.rst'),
     py_modules=['napari_svg'],
     python_requires='>=3.6',
-    install_requires=install_requires,
+    install_requires=requirements,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

@@ -1,10 +1,11 @@
+import os
 import numpy as np
 from pluggy import HookimplMarker
-from .utils import make_path_end_with_svg
 from .xml_conversion import xml_to_svg, image_to_xml, points_to_xml
 
 
 napari_hook_implementation = HookimplMarker("napari")
+supported_layers = ['image', 'points']
 
 
 @napari_hook_implementation
@@ -27,9 +28,9 @@ def napari_get_writer(path, layer_types):
     -------
     bool : Return True if data is successfully written.
     """
-    # Check that only image and points layers have been passed
+    # Check that only supported layers have been passed
     for lt in set(layer_types):
-        if lt not in ['image', 'points']:
+        if lt not in supported_layers:
             return None
 
     return writer
@@ -41,7 +42,12 @@ def writer(path, layer_data):
     if len(layer_data) == 0:
         return True
 
-    path = make_path_end_with_svg(path)
+    ext = os.path.splitext(path)[1]
+    if ext == '':
+        path = path + '.svg'
+    elif ext != '.svg':
+        # If an extension is provided then it must be `.svg`
+        return False
     
     # Generate xml list and data extrema for all layers
     full_xml_list = []
@@ -89,7 +95,12 @@ def napari_write_image(path, data, meta):
     -------
     bool : Return True if data is successfully written.
     """
-    path = make_path_end_with_svg(path)
+    ext = os.path.splitext(path)[1]
+    if ext == '':
+        path = path + '.svg'
+    elif ext != '.svg':
+        # If an extension is provided then it must be `.svg`
+        return False
 
     # Generate xml list and data extrema
     xml_list, extrema = image_to_xml(data, meta)
@@ -125,7 +136,12 @@ def napari_write_points(path, data, meta):
     -------
     bool : Return True if data is successfully written.
     """
-    path = make_path_end_with_svg(path)
+    ext = os.path.splitext(path)[1]
+    if ext == '':
+        path = path + '.svg'
+    elif ext != '.svg':
+        # If an extension is provided then it must be `.svg`
+        return False
 
     # Generate xml list and data extrema
     xml_list, extrema = points_to_xml(data, meta)
