@@ -26,7 +26,9 @@ def napari_get_writer(path, layer_types):
 
     Returns
     -------
-    bool : Return True if data is successfully written.
+    callable
+        function that accepts the path and a list of layer_data (where
+        layer_data is ``(data, meta, layer_type)``) and writes each layer.
     """
     # Check that only supported layers have been passed
     for lt in set(layer_types):
@@ -44,17 +46,30 @@ def napari_get_writer(path, layer_types):
 
 
 def writer(path, layer_data):
-    """Write data to an svg.
-    """
-    if len(layer_data) == 0:
-        return True
+    """Write layer data to an svg.
     
+    Parameters
+    ----------
+    path : str
+        path to file/directory
+    layer_data : list of napari.types.LayerData
+        List of layer_data, where layer_data is ``(data, meta, layer_type)``.
+
+    Returns
+    -------
+    path : str or None
+        If data is successfully written, return the ``path`` that was written.
+        Otherwise, if nothing was done, return ``None``.
+    """    
     ext = os.path.splitext(path)[1]
     if ext == '':
         path = path + '.svg'
     elif ext != '.svg':
         # If an extension is provided then it must be `.svg`
-        return False
+        return None
+
+    if len(layer_data) == 0:
+        return None
 
     # Generate xml list and data extrema for all layers
     full_xml_list = []
@@ -78,7 +93,7 @@ def writer(path, layer_data):
     with open(path, 'w') as file:
         file.write(svg)
 
-    return True
+    return path
 
 
 @napari_hook_implementation
@@ -100,14 +115,16 @@ def napari_write_image(path, data, meta):
 
     Returns
     -------
-    bool : Return True if data is successfully written.
+    path : str or None
+        If data is successfully written, return the ``path`` that was written.
+        Otherwise, if nothing was done, return ``None``.
     """
     ext = os.path.splitext(path)[1]
     if ext == '':
         path = path + '.svg'
     elif ext != '.svg':
         # If an extension is provided then it must be `.svg`
-        return False
+        return None
 
     # Generate xml list and data extrema
     xml_list, extrema = image_to_xml(data, meta)
@@ -119,7 +136,7 @@ def napari_write_image(path, data, meta):
     with open(path, 'w') as file:
         file.write(svg)
 
-    return True
+    return path
 
 
 @napari_hook_implementation
@@ -141,14 +158,16 @@ def napari_write_points(path, data, meta):
 
     Returns
     -------
-    bool : Return True if data is successfully written.
+    path : str or None
+        If data is successfully written, return the ``path`` that was written.
+        Otherwise, if nothing was done, return ``None``.
     """
     ext = os.path.splitext(path)[1]
     if ext == '':
         path = path + '.svg'
     elif ext != '.svg':
         # If an extension is provided then it must be `.svg`
-        return False
+        return None
 
     # Generate xml list and data extrema
     xml_list, extrema = points_to_xml(data, meta)
@@ -160,4 +179,4 @@ def napari_write_points(path, data, meta):
     with open(path, 'w') as file:
         file.write(svg)
 
-    return True
+    return path

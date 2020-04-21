@@ -31,7 +31,8 @@ def test_get_writer(tmpdir, layer_data_and_types):
     assert not os.path.isfile(path)
 
     # Write data
-    assert writer(path, layer_data)
+    return_path =  writer(path, layer_data)
+    assert return_path == path
 
     # Check file now exists
     assert os.path.isfile(path)
@@ -51,7 +52,8 @@ def test_get_writer_no_extension(tmpdir, layer_data_and_types):
     assert not os.path.isfile(path)
 
     # Write data
-    assert writer(path, layer_data)
+    return_path =  writer(path, layer_data)
+    assert return_path == path + '.svg'
 
     # Check file now exists
     assert os.path.isfile(path + '.svg')

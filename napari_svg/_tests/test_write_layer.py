@@ -31,7 +31,8 @@ def test_write_layer_no_metadata(tmpdir, layer_writer_and_data):
     assert not os.path.isfile(path)
 
     # Write data
-    assert writer(path, layer_data[0], {})
+    return_path =  writer(path, layer_data[0], {})
+    assert return_path == path
 
     # Check file now exists
     assert os.path.isfile(path)
@@ -46,7 +47,8 @@ def test_write_image_from_napari_layer_data(tmpdir, layer_writer_and_data):
     assert not os.path.isfile(path)
 
     # Write data
-    assert writer(path, layer_data[0], layer_data[1])
+    return_path = writer(path, layer_data[0], layer_data[1])
+    assert return_path == path
 
     # Check file now exists
     assert os.path.isfile(path)
@@ -61,7 +63,8 @@ def test_write_image_no_extension(tmpdir, layer_writer_and_data):
     assert not os.path.isfile(path)
 
     # Write data
-    assert writer(path, layer_data[0], layer_data[1])
+    return_path = writer(path, layer_data[0], layer_data[1])
+    assert return_path == path + '.svg'
 
     # Check file now exists with an svg extension
     assert os.path.isfile(path + '.svg')
@@ -76,7 +79,8 @@ def test_no_write_image_bad_extension(tmpdir, layer_writer_and_data):
     assert not os.path.isfile(path)
 
     # Check no data is writen
-    assert not writer(path, layer_data[0], layer_data[1])
+    return_path = writer(path, layer_data[0], layer_data[1])
+    assert return_path is None
 
     # Check file still does not exist
     assert not os.path.isfile(path)
