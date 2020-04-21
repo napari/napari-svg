@@ -3,7 +3,7 @@
 
 import os
 import codecs
-from setuptools import setup
+from setuptools import setup, find_packages
 import os.path as osp
 
 
@@ -33,7 +33,7 @@ setup(
     url='https://github.com/sofroniewn/napari-svg',
     description='A plugin for reading and writing svg files with napari',
     long_description=read('README.rst'),
-    packages=['napari_svg'],
+    packages=find_packages(),
     python_requires='>=3.6',
     install_requires=requirements,
     classifiers=[
