@@ -33,7 +33,7 @@ setup(
     url='https://github.com/sofroniewn/napari-svg',
     description='A plugin for reading and writing svg files with napari',
     long_description=read('README.rst'),
-    py_modules=['napari_svg'],
+    packages=['napari_svg'],
     python_requires='>=3.6',
     install_requires=requirements,
     classifiers=[
