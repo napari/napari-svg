@@ -1,11 +1,15 @@
 import os
 import numpy as np
 import pytest
-from napari_svg import napari_write_image, napari_write_points
-from napari.layers import Image, Points
+from napari_svg import (
+        napari_write_image,
+        napari_write_labels,
+        napari_write_points,
+    )
+from napari.layers import Image, Points, Labels
 
 
-@pytest.fixture(params=['image', 'points'])
+@pytest.fixture(params=['image', 'points', 'labels'])
 def layer_writer_and_data(request):
     if request.param == 'image':
         data = np.random.rand(20, 20)
@@ -15,6 +19,10 @@ def layer_writer_and_data(request):
         data = np.random.rand(20, 2)
         layer = Points(data)
         writer = napari_write_points
+    elif request.param == 'labels':
+        data = np.random.randint(10, size=(20, 20))
+        layer = Labels(data)
+        writer = napari_write_labels
     else:
         return None, None
     

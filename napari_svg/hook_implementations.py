@@ -139,6 +139,50 @@ def napari_write_image(path, data, meta):
     return path
 
 
+
+@napari_hook_implementation
+def napari_write_labels(path, data, meta):
+    """Write labels data to an svg.
+
+    Only two dimensional labels data is supported (including pyramid).
+    For pyramid data the lowest resolution is used.
+
+    Parameters
+    ----------
+    path : str
+        Path to file, directory, or resource (like a URL).
+    data : array or list of array
+        Labels data. Only two dimensional data (including pyramid).
+        For pyramid data the lowest resolution is used.
+    meta : dict
+        Labels metadata.
+
+    Returns
+    -------
+    path : str or None
+        If data is successfully written, return the ``path`` that was written.
+        Otherwise, if nothing was done, return ``None``.
+    """
+    ext = os.path.splitext(path)[1]
+    if ext == '':
+        path = path + '.svg'
+    elif ext != '.svg':
+        # If an extension is provided then it must be `.svg`
+        return None
+
+    # Generate xml list and data extrema
+    xml_list, extrema = image_to_xml(data, meta)
+    
+    # Generate svg string
+    svg = xml_to_svg(xml_list, extrema=extrema)
+    
+    # Write svg string
+    with open(path, 'w') as file:
+        file.write(svg)
+
+    return path
+
+
 @napari_hook_implementation
 def napari_write_points(path, data, meta):
     """Write points data to an svg.
