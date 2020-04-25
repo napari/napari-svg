@@ -1,43 +1,67 @@
 import os
 import numpy as np
 import pytest
+from napari.layers import Image, Points, Labels, Shapes, Vectors
 from napari_svg import (
-        napari_write_image,
-        napari_write_labels,
-        napari_write_points,
-        napari_write_vectors,
-    )
-from napari.layers import Image, Points, Labels, Vectors
+    napari_write_image,
+    napari_write_labels,
+    napari_write_points,
+    napari_write_shapes,
+    napari_write_vectors,
+)
 
 
-@pytest.fixture(params=['image', 'points', 'labels', 'vectors'])
+@pytest.fixture(params=['image', 'labels', 'points', 'shapes', 'shapes-rectangles', 'vectors'])
 def layer_writer_and_data(request):
+    meta_required = False
+    
     if request.param == 'image':
         data = np.random.rand(20, 20)
         layer = Image(data)
         writer = napari_write_image
-    elif request.param == 'points':
-        data = np.random.rand(20, 2)
-        layer = Points(data)
-        writer = napari_write_points
     elif request.param == 'labels':
         data = np.random.randint(10, size=(20, 20))
         layer = Labels(data)
         writer = napari_write_labels
+    elif request.param == 'points':
+        data = np.random.rand(20, 2)
+        layer = Points(data)
+        writer = napari_write_points
+    elif request.param == 'shapes':
+        np.random.seed(0)
+        data = [
+            np.random.rand(2, 2),
+            np.random.rand(2, 2),
+            np.random.rand(6, 2),
+            np.random.rand(6, 2),
+            np.random.rand(2, 2),
+        ]
+        shape_type = ['ellipse', 'line', 'path', 'polygon', 'rectangle']
+        layer = Shapes(data, shape_type=shape_type)
+        writer = napari_write_shapes
+        meta_required = True
+    elif request.param == 'shapes-rectangles':
+        np.random.seed(0)
+        data = np.random.rand(7, 4, 2)
+        layer = Shapes(data)
+        writer = napari_write_shapes
     elif request.param == 'vectors':
         data = np.random.rand(20, 2, 2)
         layer = Vectors(data)
         writer = napari_write_vectors
     else:
-        return None, None
+        return None, None, False
     
     layer_data = layer.as_layer_data_tuple()
-    return writer, layer_data
+    return writer, layer_data, meta_required
 
 
 def test_write_layer_no_metadata(tmpdir, layer_writer_and_data):
     """Test writing layer data with no metadata."""
-    writer, layer_data = layer_writer_and_data
+    writer, layer_data, meta_required = layer_writer_and_data
+    if meta_required:
+        return
+
     path = os.path.join(tmpdir, 'layer_file.svg')
     
     # Check file does not exist
@@ -53,7 +77,7 @@ def test_write_layer_no_metadata(tmpdir, layer_writer_and_data):
 
 def test_write_image_from_napari_layer_data(tmpdir, layer_writer_and_data):
     """Test writing layer data from napari layer_data tuple."""
-    writer, layer_data = layer_writer_and_data
+    writer, layer_data, _ = layer_writer_and_data
     path = os.path.join(tmpdir, 'layer_file.svg')
 
     # Check file does not exist
@@ -69,7 +93,7 @@ def test_write_image_from_napari_layer_data(tmpdir, layer_writer_and_data):
 
 def test_write_image_no_extension(tmpdir, layer_writer_and_data):
     """Test writing layer data with no extension."""
-    writer, layer_data = layer_writer_and_data
+    writer, layer_data, _ = layer_writer_and_data
     path = os.path.join(tmpdir, 'layer_file')
 
     # Check file does not exist
@@ -85,7 +109,7 @@ def test_write_image_no_extension(tmpdir, layer_writer_and_data):
 
 def test_no_write_image_bad_extension(tmpdir, layer_writer_and_data):
     """Test not writing layer data with a bad extension."""
-    writer, layer_data = layer_writer_and_data
+    writer, layer_data, _ = layer_writer_and_data
     path = os.path.join(tmpdir, 'layer_file.csv')
 
     # Check file does not exist

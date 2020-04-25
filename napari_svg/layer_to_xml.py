@@ -1,58 +1,25 @@
-from xml.etree.ElementTree import Element, tostring
+from xml.etree.ElementTree import Element
 from base64 import b64encode
 import numpy as np
 from copy import copy
 from imageio import imwrite
 from vispy.color import get_colormap
+from ._shape_to_xml import (
+    ellipse_to_xml,
+    line_to_xml,
+    path_to_xml,
+    polygon_to_xml,
+    rectangle_to_xml,
+)
 
 
-def xml_to_svg(xml_list, extrema):
-    """Convert a list of xml into an SVG string.
-
-    Parameters
-    ----------
-    xml : list of xml.etree.ElementTree.Element
-        List of a xml elements in the svg specification.
-    extrema : array (2, 2)
-        Extrema of data, specified as a minumum then maximum of the (x, y)
-        coordinates. Used to specify the view box of SVG canvas.
-
-    Returns
-    ----------
-    svg : string
-        SVG representation of the layer.
-    """
-
-    corner = extrema[0]
-    shape = extrema[1] - extrema[0]
-
-    props = {
-        'xmlns': 'http://www.w3.org/2000/svg',
-        'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-    }
-
-    xml = Element(
-        'svg',
-        height=f'{shape[0]}',
-        width=f'{shape[1]}',
-        version='1.1',
-        **props,
-    )
-
-    transform = f'translate({-corner[1]} {-corner[0]})'
-    xml_transform = Element('g', transform=transform)
-    for x in xml_list:
-        xml_transform.append(x)
-    xml.append(xml_transform)
-
-    svg = (
-        '<?xml version=\"1.0\" standalone=\"no\"?>\n'
-        + '<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n'
-        + '\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n'
-        + tostring(xml, encoding='unicode', method='xml')
-    )
-
-    return svg
+shape_type_to_xml = {
+    'ellipse': ellipse_to_xml,
+    'line': line_to_xml,
+    'path': path_to_xml,
+    'polygon': polygon_to_xml,
+    'rectangle': rectangle_to_xml,
+}
 
 
 def image_to_xml(data, meta):
@@ -113,7 +80,7 @@ def image_to_xml(data, meta):
 
     # Check if more than 2 dimensional and if so error.
     if data.ndim - int(rgb) > 2:
-        raise ValueError('Data must be 2 dimensional to save to svg')
+        raise ValueError('Image must be 2 dimensional to save as svg')
     else:
         image = data
 
@@ -206,7 +173,7 @@ def points_to_xml(data, meta):
 
     # Check if more than 2 dimensional and if so error.
     if data.shape[1] > 2:
-        raise ValueError('Data must be 2 dimensional to save to svg')
+        raise ValueError('Points must be 2 dimensional to save as svg')
     else:
         points = data
 
@@ -228,6 +195,87 @@ def points_to_xml(data, meta):
             'circle', cx=cx, cy=cy, r=r, stroke=stroke, fill=fill, **props
         )
         xml_list.append(element)
+
+    return xml_list, extrema
+
+
+def shapes_to_xml(data, meta):
+    """Generates a xml data for shapes.
+
+    Only two dimensional shapes data is supported. Z ordering of the shapes
+    will be taken into account.
+
+    Parameters
+    ----------
+    data : list of array
+        Shapes data. Only two dimensional shapes data is supported.
+    meta : dict
+        Shapes metadata.
+
+    Returns
+    -------
+    xml_list : list of xml.etree.ElementTree.Element
+        List of xml elements defining each shapes according to the
+        svg specification
+    extrema : array (2, 2)
+        Extrema of data, specified as a minumum then maximum of the (x, y)
+        coordinates.
+    """
+    # Extract metadata parameters
+    # Ignore color until https://github.com/napari/napari/pull/898 has merged
+    if 'face_color' in meta and False:
+        face_color = meta['face_color']
+    else:
+        face_color = np.ones((len(data), 4))
+
+    # Ignore color until https://github.com/napari/napari/pull/898 has merged    
+    if 'edge_color' in meta and False:
+        edge_color = meta['edge_color']
+    else:
+        edge_color = np.zeros((len(data), 4))
+        edge_color[:, 3] = 1
+
+    if 'z_index' in meta:
+        z_index = meta['z_index']
+    else:
+        z_index = list(range(len(data)))
+
+    if 'edge_width' in meta:
+        edge_width = meta['edge_width']
+    else:
+        edge_width = np.ones(len(data))
+
+    if 'opacity' in meta:
+        opacity = meta['opacity']
+    else:
+        opacity = np.ones(len(data))
+
+    if 'shape_type' in meta:
+        shape_type = meta['shape_type']
+    else:
+        shape_type = ['rectangle'] * len(data)
+
+    shapes = data
+
+    # Find extrema of data
+    mins = np.min([np.min(d, axis=0) for d in shapes], axis=0)
+    maxs = np.max([np.max(d, axis=0) for d in shapes], axis=0)
+    extrema = np.array([mins, maxs])
+
+    raw_xml_list = []
+    zipped = zip(shapes, shape_type, face_color, edge_color, edge_width, opacity)
+    for s, st, fc, ec, ew, o in zipped:
+        props = {'stroke-width': str(ew), 'opacity': str(o)}
+        fc_int = (255 * fc).astype(np.int)
+        props['fill'] = f'rgb{tuple(fc_int[:3])}'
+        ec_int = (255 * ec).astype(np.int)
+        props['stroke'] = f'rgb{tuple(ec_int[:3])}'
+        shape_to_xml_func = shape_type_to_xml[st]
+        element = shape_to_xml_func(s, props)
+        raw_xml_list.append(element)
+
+    # reorder according to z-index
+    xml_list = [raw_xml_list[i] for i in z_index[::-1]]
 
     return xml_list, extrema
 
@@ -278,15 +326,15 @@ def vectors_to_xml(data, meta):
 
     # Check if more than 2 dimensional and if so error.
     if data.shape[2] > 2:
-        raise ValueError('Data must be 2 dimensional to save to svg')
+        raise ValueError('Vectors must be 2 dimensional to save as svg')
     else:
         vectors = data
 
     # Find extrema of data
     full_vectors = copy(vectors)
     full_vectors[:, 1, :] = vectors[:, 0, :] + length * vectors[:, 1, :]
-    maxs = np.max(full_vectors, axis=(0, 1))
     mins = np.min(full_vectors, axis=(0, 1))
+    maxs = np.max(full_vectors, axis=(0, 1))
     extrema = np.array([mins, maxs])
 
     props = {'stroke-width': str(edge_width), 'opacity': str(opacity)}
