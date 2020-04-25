@@ -5,11 +5,12 @@ from napari_svg import (
         napari_write_image,
         napari_write_labels,
         napari_write_points,
+        napari_write_vectors,
     )
-from napari.layers import Image, Points, Labels
+from napari.layers import Image, Points, Labels, Vectors
 
 
-@pytest.fixture(params=['image', 'points', 'labels'])
+@pytest.fixture(params=['image', 'points', 'labels', 'vectors'])
 def layer_writer_and_data(request):
     if request.param == 'image':
         data = np.random.rand(20, 20)
@@ -23,6 +24,10 @@ def layer_writer_and_data(request):
         data = np.random.randint(10, size=(20, 20))
         layer = Labels(data)
         writer = napari_write_labels
+    elif request.param == 'vectors':
+        data = np.random.rand(20, 2, 2)
+        layer = Vectors(data)
+        writer = napari_write_vectors
     else:
         return None, None
     

@@ -1,6 +1,7 @@
 from xml.etree.ElementTree import Element, tostring
 from base64 import b64encode
 import numpy as np
+from copy import copy
 from imageio import imwrite
 from vispy.color import get_colormap
 
@@ -219,13 +220,87 @@ def points_to_xml(data, meta):
         cx = str(p[1])
         cy = str(p[0])
         r = str(s / 2)
-        face_color = (255 * fc).astype(np.int)
-        fill = f'rgb{tuple(face_color[:3])}'
-        edge_color = (255 * ec).astype(np.int)
-        stroke = f'rgb{tuple(edge_color[:3])}'
+        fc_int = (255 * fc).astype(np.int)
+        fill = f'rgb{tuple(fc_int[:3])}'
+        ec_int = (255 * ec).astype(np.int)
+        stroke = f'rgb{tuple(ec_int[:3])}'
         element = Element(
             'circle', cx=cx, cy=cy, r=r, stroke=stroke, fill=fill, **props
         )
+        xml_list.append(element)
+
+    return xml_list, extrema
+
+
+def vectors_to_xml(data, meta):
+    """Generates a xml data for vectors.
+
+    Only two dimensional vectors data is supported. Each vector is represented
+    by a line.
+
+    Parameters
+    ----------
+    data : array
+        Vectors data. Only two dimensional vectors data is supported.
+    meta : dict
+        Points metadata.
+
+    Returns
+    -------
+    xml_list : list of xml.etree.ElementTree.Element
+        List of xml elements defining each vector as a line according to the
+        svg specification
+    extrema : array (2, 2)
+        Extrema of data, specified as a minumum then maximum of the (x, y)
+        coordinates.
+    """
+    # Extract metadata parameters
+    if 'edge_color' in meta:
+        edge_color = meta['edge_color']
+    else:
+        edge_color = np.zeros((data.shape[0], 4))
+        edge_color[:, 3] = 1
+
+    if 'edge_width' in meta:
+        edge_width = meta['edge_width']
+    else:
+        edge_width = 1
+
+    if 'length' in meta:
+        length = meta['length']
+    else:
+        length = 1
+
+    if 'opacity' in meta:
+        opacity = meta['opacity']
+    else:
+        opacity = 1
+
+    # Check if more than 2 dimensional and if so error.
+    if data.shape[2] > 2:
+        raise ValueError('Data must be 2 dimensional to save to svg')
+    else:
+        vectors = data
+
+    # Find extrema of data
+    full_vectors = copy(vectors)
+    full_vectors[:, 1, :] = vectors[:, 0, :] + length * vectors[:, 1, :]
+    maxs = np.max(full_vectors, axis=(0, 1))
+    mins = np.min(full_vectors, axis=(0, 1))
+    extrema = np.array([mins, maxs])
+
+    props = {'stroke-width': str(edge_width), 'opacity': str(opacity)}
+
+    xml_list = []
+    for v, ec in zip(vectors, edge_color):
+        x1 = str(v[0, -2])
+        y1 = str(v[0, -1])
+        x2 = str(v[0, -2] + length * v[1, -2])
+        y2 = str(v[0, -1] + length * v[1, -1])
+        ec_int = (255 * ec).astype(np.int)
+        stroke = f'rgb{tuple(ec_int[:3])}'
+        props['stroke'] = stroke
+        element = Element('line', x1=y1, y1=x1, x2=y2, y2=x2, **props)
         xml_list.append(element)
 
     return xml_list, extrema
