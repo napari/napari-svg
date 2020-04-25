@@ -2,15 +2,18 @@ import os
 import numpy as np
 import pytest
 from napari_svg import napari_get_writer
-from napari.layers import Image, Points
+from napari.layers import Image, Labels, Points, Shapes, Vectors
 
 
 @pytest.fixture
 def layer_data_and_types():
+    np.random.seed(0)
     layers = [
               Image(np.random.rand(20, 20)),
-              Image(np.random.rand(20, 20)),
+              Labels(np.random.randint(10, size=(20, 2))),
               Points(np.random.rand(20, 2)),
+              Shapes(np.random.rand(10, 2, 2)),
+              Vectors(np.random.rand(10, 2, 2)),
              ]
     layer_data = [l.as_layer_data_tuple() for l in layers]
     layer_types = [ld[2] for ld in layer_data]

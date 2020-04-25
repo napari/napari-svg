@@ -4,12 +4,13 @@ from pluggy import HookimplMarker
 from .xml_to_svg import xml_to_svg
 from .layer_to_xml import (
     image_to_xml,
-    points_to_xml,    
+    points_to_xml,
     shapes_to_xml,
     vectors_to_xml,
 )
 
 
+labels_to_xml = image_to_xml
 napari_hook_implementation = HookimplMarker('napari')
 supported_layers = ['image', 'points', 'labels', 'shapes', 'vectors']
 
@@ -177,7 +178,7 @@ def napari_write_labels(path, data, meta):
         return None
 
     # Generate xml list and data extrema
-    xml_list, extrema = image_to_xml(data, meta)
+    xml_list, extrema = labels_to_xml(data, meta)
     
     # Generate svg string
     svg = xml_to_svg(xml_list, extrema=extrema)

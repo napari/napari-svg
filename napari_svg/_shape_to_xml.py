@@ -19,9 +19,10 @@ def ellipse_to_xml(data, svg_props):
     element : xml.etree.ElementTree.Element
         xml element defining an ellipse.
     """
-
     if data.shape != (4, 2):
         raise ValueError('Ellipse must be 2 dimensional to save as svg')
+
+    data = data[:, ::-1]
 
     offset = data[1] - data[0]
     angle = -np.arctan2(offset[0], -offset[1])
@@ -71,7 +72,6 @@ def line_to_xml(data, svg_props):
     element : xml.etree.ElementTree.Element
         xml element defining a line.
     """
-
     if data.shape != (2, 2):
         raise ValueError('Line must be 2 dimensional to save as svg')
 
@@ -101,7 +101,6 @@ def path_to_xml(data, svg_props):
     element : xml.etree.ElementTree.Element
         xml element defining a polyline.
     """
-
     if data.shape[1] != 2:
         raise ValueError('Path must be 2 dimensional to save as svg')
 
@@ -157,9 +156,10 @@ def rectangle_to_xml(data, svg_props):
     element : xml.etree.ElementTree.Element
         xml element defining a rect.
     """
-
     if data.shape != (4, 2):
         raise ValueError('Rectangle must be 2 dimensional to save as svg')
+
+    data = data[:, ::-1]
 
     offset = data[1] - data[0]
     angle = -np.arctan2(offset[0], -offset[1])

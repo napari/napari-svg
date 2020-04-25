@@ -64,8 +64,8 @@ def image_to_xml(data, meta):
     else:
         contrast_limits = [0, 1]
 
-    if 'colormap_name' in meta:
-        colormap_name = meta['colormap_name']
+    if 'colormap' in meta:
+        colormap_name = meta['colormap']
     else:
         colormap_name = 'gray'
 
@@ -97,9 +97,11 @@ def image_to_xml(data, meta):
         image = image - contrast_limits[0]
         color_range = contrast_limits[1] - contrast_limits[0]
         if color_range != 0:
-            data = data / color_range
+            image = image / color_range
 
         # get colormap
+        # TODO: Currently we only support vispy colormaps, need to
+        # add support for all napari colormaps, matters for Labels too.
         cmap = get_colormap(colormap_name)
             
         # apply colormap to data
@@ -222,13 +224,13 @@ def shapes_to_xml(data, meta):
         coordinates.
     """
     # Extract metadata parameters
-    # Ignore color until https://github.com/napari/napari/pull/898 has merged
+    # TODO: Ignore color until https://github.com/napari/napari/pull/898 has merged
     if 'face_color' in meta and False:
         face_color = meta['face_color']
     else:
         face_color = np.ones((len(data), 4))
 
-    # Ignore color until https://github.com/napari/napari/pull/898 has merged    
+    # TODO: Ignore color until https://github.com/napari/napari/pull/898 has merged    
     if 'edge_color' in meta and False:
         edge_color = meta['edge_color']
     else:
@@ -238,7 +240,7 @@ def shapes_to_xml(data, meta):
     if 'z_index' in meta:
         z_index = meta['z_index']
     else:
-        z_index = list(range(len(data)))
+        z_index = np.zeros(len(data))
 
     if 'edge_width' in meta:
         edge_width = meta['edge_width']
@@ -275,8 +277,8 @@ def shapes_to_xml(data, meta):
         raw_xml_list.append(element)
 
     # reorder according to z-index
-    xml_list = [raw_xml_list[i] for i in z_index[::-1]]
-
+    z_order = np.argsort(z_index)
+    xml_list = [raw_xml_list[i] for i in z_order]
     return xml_list, extrema
 
 
