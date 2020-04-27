@@ -25,8 +25,8 @@ shape_type_to_xml = {
 def image_to_xml(data, meta):
     """Generates a xml data for an image.
 
-    Only two dimensional data (including rgb, and pyramid) is supported. For
-    pyramid data the lowest resolution is used.
+    Only two dimensional data (including rgb, and multiscale) is supported. For
+    multiscale data the lowest resolution is used.
 
     The xml data is a list with a single xml element that defines the
     currently viewed image as a png according to the svg specification.
@@ -34,8 +34,8 @@ def image_to_xml(data, meta):
     Parameters
     ----------
     data : array or list of array
-        Image data. Only two dimensional data (including rgb, and pyramid) is
-        supported. For pyramid data the lowest resolution is used.
+        Image data. Only two dimensional data (including rgb, and multiscale) is
+        supported. For multiscale data the lowest resolution is used.
     meta : dict
         Image metadata.
 
@@ -49,10 +49,10 @@ def image_to_xml(data, meta):
         coordinates.
     """
     # Extract metadata parameters
-    if 'is_pyramid' in meta:
-        is_pyramid = meta['is_pyramid']
+    if 'multiscale' in meta:
+        multiscale = meta['multiscale']
     else:
-        is_pyramid = False
+        multiscale = False
 
     if 'rgb' in meta:
         rgb = meta['rgb']
@@ -74,8 +74,8 @@ def image_to_xml(data, meta):
     else:
         opacity = 1
 
-    # Check if data is a pyramid, and if so take only last layer
-    if is_pyramid:
+    # Check if data is multiscale, and if so take only last layer
+    if multiscale:
         data = data[-1]
 
     # Check if more than 2 dimensional and if so error.
