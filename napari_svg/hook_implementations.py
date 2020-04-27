@@ -107,16 +107,16 @@ def writer(path, layer_data):
 def napari_write_image(path, data, meta):
     """Write image data to an svg.
 
-    Only two dimensional image data is supported (including rgb, and pyramid).
-    For pyramid data the lowest resolution is used.
+    Only two dimensional image data is supported (including rgb, and multiscale).
+    For multiscale data the lowest resolution is used.
 
     Parameters
     ----------
     path : str
         Path to file, directory, or resource (like a URL).
     data : array or list of array
-        Image data. Only two dimensional data (including rgb, and pyramid)
-        is supported. For pyramid data the lowest resolution is used.
+        Image data. Only two dimensional data (including rgb, and multiscale)
+        is supported. For multiscale data the lowest resolution is used.
     meta : dict
         Image metadata.
 
@@ -151,16 +151,16 @@ def napari_write_image(path, data, meta):
 def napari_write_labels(path, data, meta):
     """Write labels data to an svg.
 
-    Only two dimensional labels data is supported (including pyramid).
-    For pyramid data the lowest resolution is used.
+    Only two dimensional labels data is supported (including multiscale).
+    For multiscale data the lowest resolution is used.
 
     Parameters
     ----------
     path : str
         Path to file, directory, or resource (like a URL).
     data : array or list of array
-        Labels data. Only two dimensional data (including pyramid) is supported.
-        For pyramid data the lowest resolution is used.
+        Labels data. Only two dimensional data (including multiscale) is supported.
+        For multiscale data the lowest resolution is used.
     meta : dict
         Labels metadata.
 
