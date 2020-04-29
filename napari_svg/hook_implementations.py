@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from pluggy import HookimplMarker
+from napari_plugin_engine import napari_hook_implementation
 from .xml_to_svg import xml_to_svg
 from .layer_to_xml import (
     image_to_xml,
@@ -11,7 +11,6 @@ from .layer_to_xml import (
 
 
 labels_to_xml = image_to_xml
-napari_hook_implementation = HookimplMarker('napari')
 supported_layers = ['image', 'points', 'labels', 'shapes', 'vectors']
 
 
