@@ -14,7 +14,7 @@ labels_to_xml = image_to_xml
 supported_layers = ['image', 'points', 'labels', 'shapes', 'vectors']
 
 
-@napari_hook_implementation
+@napari_hook_implementation(trylast=True)
 def napari_get_writer(path, layer_types):
     """Write layer data to an svg.
 
@@ -102,7 +102,7 @@ def writer(path, layer_data):
     return path
 
 
-@napari_hook_implementation
+@napari_hook_implementation(trylast=True)
 def napari_write_image(path, data, meta):
     """Write image data to an svg.
 
@@ -146,7 +146,7 @@ def napari_write_image(path, data, meta):
 
 
 
-@napari_hook_implementation
+@napari_hook_implementation(trylast=True)
 def napari_write_labels(path, data, meta):
     """Write labels data to an svg.
 
