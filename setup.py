@@ -24,7 +24,7 @@ with open(osp.join('requirements', 'default.txt')) as f:
 
 setup(
     name='napari-svg',
-    version='0.1.1',
+    version='0.1.2',
     author='Nicholas Sofroniew',
     author_email='sofroniewn@gmail.com',
     maintainer='Nicholas Sofroniew',
