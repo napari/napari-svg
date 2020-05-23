@@ -246,9 +246,9 @@ def shapes_to_xml(data, meta):
         edge_width = np.ones(len(data))
 
     if 'opacity' in meta:
-        opacity = meta['opacity'] * np.ones(len(data))
+        opacity = meta['opacity']
     else:
-        opacity = np.ones(len(data))
+        opacity = 1
 
     if 'shape_type' in meta:
         shape_type = meta['shape_type']
@@ -263,9 +263,9 @@ def shapes_to_xml(data, meta):
     extrema = np.array([mins, maxs])
 
     raw_xml_list = []
-    zipped = zip(shapes, shape_type, face_color, edge_color, edge_width, opacity)
-    for s, st, fc, ec, ew, o in zipped:
-        props = {'stroke-width': str(ew), 'opacity': str(o)}
+    zipped = zip(shapes, shape_type, face_color, edge_color, edge_width)
+    for s, st, fc, ec, ew in zipped:
+        props = {'stroke-width': str(ew), 'opacity': str(opacity)}
         fc_int = (255 * fc).astype(np.int)
         props['fill'] = f'rgb{tuple(fc_int[:3])}'
         ec_int = (255 * ec).astype(np.int)
