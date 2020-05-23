@@ -248,7 +248,7 @@ def shapes_to_xml(data, meta):
         edge_width = np.ones(len(data))
 
     if 'opacity' in meta:
-        opacity = meta['opacity']
+        opacity = meta['opacity'] * np.ones(len(data))
     else:
         opacity = np.ones(len(data))
 
