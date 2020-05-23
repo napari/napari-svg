@@ -30,7 +30,7 @@ setup(
     maintainer='Nicholas Sofroniew',
     maintainer_email='sofroniewn@gmail.com',
     license='BSD-3',
-    url='https://github.com/sofroniewn/napari-svg',
+    url='https://github.com/napari/napari-svg',
     description='A plugin for reading and writing svg files with napari',
     long_description=read('README.rst'),
     packages=find_packages(),
