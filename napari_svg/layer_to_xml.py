@@ -224,14 +224,12 @@ def shapes_to_xml(data, meta):
         coordinates.
     """
     # Extract metadata parameters
-    # TODO: Ignore color until https://github.com/napari/napari/pull/898 has merged
-    if 'face_color' in meta and False:
+    if 'face_color' in meta:
         face_color = meta['face_color']
     else:
         face_color = np.ones((len(data), 4))
 
-    # TODO: Ignore color until https://github.com/napari/napari/pull/898 has merged    
-    if 'edge_color' in meta and False:
+    if 'edge_color' in meta:
         edge_color = meta['edge_color']
     else:
         edge_color = np.zeros((len(data), 4))
