@@ -20,8 +20,6 @@ def xml_to_svg(xml_list, extrema):
         SVG representation of the layer.
     """
 
-    # replace all numpy nan values (from empty layers) with 0
-    # see: https://github.com/napari/napari-svg/pull/12
     extrema = np.nan_to_num(extrema, nan=0)
 
     corner = extrema[0]
