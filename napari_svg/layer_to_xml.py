@@ -66,8 +66,13 @@ def image_to_xml(data, meta):
 
     if 'colormap' in meta:
         colormap_name = meta['colormap']
+
+        # convert 'gray' colormap name to 'grays' for vispy compatibility
+        # see: https://github.com/napari/napari-svg/pull/12
+        if colormap_name == 'gray':
+            colormap_name = 'grays'
     else:
-        colormap_name = 'gray'
+        colormap_name = 'grays'
 
     if 'opacity' in meta:
         opacity = meta['opacity']
