@@ -257,10 +257,15 @@ def shapes_to_xml(data, meta):
 
     shapes = data
 
-    # Find extrema of data
-    mins = np.min([np.min(d, axis=0) for d in shapes], axis=0)
-    maxs = np.max([np.max(d, axis=0) for d in shapes], axis=0)
-    extrema = np.array([mins, maxs])
+    if len(shapes) > 0:
+        # Find extrema of data
+        mins = np.min([np.min(d, axis=0) for d in shapes], axis=0)
+        maxs = np.max([np.max(d, axis=0) for d in shapes], axis=0)
+        extrema = np.array([mins, maxs])
+    else:
+        # If the shapes layer is empty, extrema are nan
+        # see: https://github.com/napari/napari-svg/pull/12
+        extrema = np.full((2, 2), np.nan)
 
     raw_xml_list = []
     zipped = zip(shapes, shape_type, face_color, edge_color, edge_width)

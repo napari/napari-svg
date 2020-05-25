@@ -87,9 +87,12 @@ def writer(path, layer_data):
         if full_extrema is None:
             full_extrema = extrema
         else:
+            # get the extreema of all elements.
+            # elements with nan extreema (i.e., empty) will not be considered for min/max.
+            # see https://github.com/napari/napari-svg/pull/12
             full_extrema = np.array([
-                                np.min([full_extrema[0], extrema[0]], axis=0),
-                                np.max([full_extrema[1], extrema[1]], axis=0),
+                                np.nanmin([full_extrema[0], extrema[0]], axis=0),
+                                np.nanmax([full_extrema[1], extrema[1]], axis=0),
                             ])
 
     # Generate svg string

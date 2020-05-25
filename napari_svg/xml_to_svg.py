@@ -1,5 +1,7 @@
 from xml.etree.ElementTree import Element, tostring
 
+import numpy as np
+
 
 def xml_to_svg(xml_list, extrema):
     """Convert a list of xml into an SVG string.
@@ -18,8 +20,16 @@ def xml_to_svg(xml_list, extrema):
         SVG representation of the layer.
     """
 
+    # replace all numpy nan values (from empty layers) with 0
+    # see: https://github.com/napari/napari-svg/pull/12
+    extrema = np.nan_to_num(extrema, nan=0)
+
     corner = extrema[0]
     shape = extrema[1] - extrema[0]
+
+    # set any 0 values in the shape to 1 to prevent height or width = 0
+    # see: https://github.com/napari/napari-svg/pull/12
+    shape[shape == 0] = 1
 
     props = {
         'xmlns': 'http://www.w3.org/2000/svg',
