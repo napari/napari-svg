@@ -66,8 +66,13 @@ def image_to_xml(data, meta):
 
     if 'colormap' in meta:
         colormap_name = meta['colormap']
+
+        # convert 'gray' colormap name to 'grays' for vispy compatibility
+        # see: https://github.com/napari/napari-svg/pull/12
+        if colormap_name == 'gray':
+            colormap_name = 'grays'
     else:
-        colormap_name = 'gray'
+        colormap_name = 'grays'
 
     if 'opacity' in meta:
         opacity = meta['opacity']
@@ -224,14 +229,12 @@ def shapes_to_xml(data, meta):
         coordinates.
     """
     # Extract metadata parameters
-    # TODO: Ignore color until https://github.com/napari/napari/pull/898 has merged
-    if 'face_color' in meta and False:
+    if 'face_color' in meta:
         face_color = meta['face_color']
     else:
         face_color = np.ones((len(data), 4))
 
-    # TODO: Ignore color until https://github.com/napari/napari/pull/898 has merged    
-    if 'edge_color' in meta and False:
+    if 'edge_color' in meta:
         edge_color = meta['edge_color']
     else:
         edge_color = np.zeros((len(data), 4))
@@ -250,7 +253,7 @@ def shapes_to_xml(data, meta):
     if 'opacity' in meta:
         opacity = meta['opacity']
     else:
-        opacity = np.ones(len(data))
+        opacity = 1
 
     if 'shape_type' in meta:
         shape_type = meta['shape_type']
@@ -259,15 +262,18 @@ def shapes_to_xml(data, meta):
 
     shapes = data
 
-    # Find extrema of data
-    mins = np.min([np.min(d, axis=0) for d in shapes], axis=0)
-    maxs = np.max([np.max(d, axis=0) for d in shapes], axis=0)
-    extrema = np.array([mins, maxs])
+    if len(shapes) > 0:
+        # Find extrema of data
+        mins = np.min([np.min(d, axis=0) for d in shapes], axis=0)
+        maxs = np.max([np.max(d, axis=0) for d in shapes], axis=0)
+        extrema = np.array([mins, maxs])
+    else:
+        extrema = np.full((2, 2), np.nan)
 
     raw_xml_list = []
-    zipped = zip(shapes, shape_type, face_color, edge_color, edge_width, opacity)
-    for s, st, fc, ec, ew, o in zipped:
-        props = {'stroke-width': str(ew), 'opacity': str(o)}
+    zipped = zip(shapes, shape_type, face_color, edge_color, edge_width)
+    for s, st, fc, ec, ew in zipped:
+        props = {'stroke-width': str(ew), 'opacity': str(opacity)}
         fc_int = (255 * fc).astype(np.int)
         props['fill'] = f'rgb{tuple(fc_int[:3])}'
         ec_int = (255 * ec).astype(np.int)
