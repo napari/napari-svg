@@ -20,7 +20,7 @@ def xml_to_svg(xml_list, extrema):
         SVG representation of the layer.
     """
 
-    extrema = np.nan_to_num(extrema, nan=0)
+    extrema = np.nan_to_num(extrema)
 
     corner = extrema[0]
     shape = extrema[1] - extrema[0]

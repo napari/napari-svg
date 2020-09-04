@@ -1,6 +1,8 @@
 import os
 import numpy as np
 from napari_plugin_engine import napari_hook_implementation
+import warnings
+
 from .xml_to_svg import xml_to_svg
 from .layer_to_xml import (
     image_to_xml,
@@ -88,12 +90,19 @@ def writer(path, layer_data):
             full_extrema = extrema
         else:
             # get the extreema of all elements.
-            # elements with nan extreema (i.e., empty) will not be considered for min/max.
-            # see https://github.com/napari/napari-svg/pull/12
-            full_extrema = np.array([
-                                np.nanmin([full_extrema[0], extrema[0]], axis=0),
-                                np.nanmax([full_extrema[1], extrema[1]], axis=0),
-                            ])
+            with warnings.catch_warnings():
+                # Taking the nanmin and nanmax of an axis of all nan
+                # raises a warning and returns nan for that axis
+                # as we have do an explict nan_to_num in xml_to_svg this
+                # behaviour is acceptable and we can filter the
+                # warning, see https://github.com/napari/napari-svg/pull/12
+                warnings.filterwarnings(
+                    'ignore', message='All-NaN axis encountered'
+                )
+                full_extrema = np.array([
+                                    np.nanmin([full_extrema[0], extrema[0]], axis=0),
+                                    np.nanmax([full_extrema[1], extrema[1]], axis=0),
+                                ])
 
     # Generate svg string
     svg = xml_to_svg(full_xml_list, extrema=full_extrema)
