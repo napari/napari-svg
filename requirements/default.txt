@@ -1,4 +1,4 @@
 imageio>=2.5.0
-numpy>=1.10.0
+numpy>=1.16.0
 napari-plugin-engine>=0.1.4
 vispy >= 0.6.4
