@@ -6,7 +6,7 @@
       "full_name": "Nicholas Sofroniew",
       "email": "sofroniewn@gmail.com",
       "github_username": "napari",
-      "plugin_name": "napari-svg",
+      "plugin_name": "svg",
       "module_name": "napari_svg",
       "short_description": "A plugin for reading and writing svg files with napari",
       "include_reader_plugin": "n",
