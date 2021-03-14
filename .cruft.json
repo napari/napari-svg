@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/napari/cookiecutter-napari-plugin",
-  "commit": "bd776118c9ab1c227d08963cba34219f06ebc1b5",
+  "commit": "b89b0524037227b113e6aa512354afb698400e3f",
   "context": {
     "cookiecutter": {
       "full_name": "Nicholas Sofroniew",
@@ -18,5 +18,6 @@
       "_template": "https://github.com/napari/cookiecutter-napari-plugin"
     }
   },
-  "directory": null
+  "directory": null,
+  "checkout": null
 }
