@@ -194,9 +194,9 @@ def points_to_xml(data, meta):
         cx = str(p[1])
         cy = str(p[0])
         r = str(s / 2)
-        fc_int = (255 * fc).astype(np.int)
+        fc_int = (255 * fc).astype(int)
         fill = f'rgb{tuple(fc_int[:3])}'
-        ec_int = (255 * ec).astype(np.int)
+        ec_int = (255 * ec).astype(int)
         stroke = f'rgb{tuple(ec_int[:3])}'
         element = Element(
             'circle', cx=cx, cy=cy, r=r, stroke=stroke, fill=fill, **props
@@ -274,9 +274,9 @@ def shapes_to_xml(data, meta):
     zipped = zip(shapes, shape_type, face_color, edge_color, edge_width)
     for s, st, fc, ec, ew in zipped:
         props = {'stroke-width': str(ew), 'opacity': str(opacity)}
-        fc_int = (255 * fc).astype(np.int)
+        fc_int = (255 * fc).astype(int)
         props['fill'] = f'rgb{tuple(fc_int[:3])}'
-        ec_int = (255 * ec).astype(np.int)
+        ec_int = (255 * ec).astype(int)
         props['stroke'] = f'rgb{tuple(ec_int[:3])}'
         shape_to_xml_func = shape_type_to_xml[st]
         element = shape_to_xml_func(s, props)
@@ -353,7 +353,7 @@ def vectors_to_xml(data, meta):
         y1 = str(v[0, -1])
         x2 = str(v[0, -2] + length * v[1, -2])
         y2 = str(v[0, -1] + length * v[1, -1])
-        ec_int = (255 * ec).astype(np.int)
+        ec_int = (255 * ec).astype(int)
         stroke = f'rgb{tuple(ec_int[:3])}'
         props['stroke'] = stroke
         element = Element('line', x1=y1, y1=x1, x2=y2, y2=x2, **props)
