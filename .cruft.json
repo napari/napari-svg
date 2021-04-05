@@ -1,0 +1,23 @@
+{
+  "template": "https://github.com/napari/cookiecutter-napari-plugin",
+  "commit": "b89b0524037227b113e6aa512354afb698400e3f",
+  "context": {
+    "cookiecutter": {
+      "full_name": "Nicholas Sofroniew",
+      "email": "sofroniewn@gmail.com",
+      "github_username": "napari",
+      "plugin_name": "svg",
+      "module_name": "napari_svg",
+      "short_description": "A plugin for reading and writing svg files with napari",
+      "include_reader_plugin": "n",
+      "include_writer_plugin": "y",
+      "include_dock_widget_plugin": "n",
+      "include_function_plugin": "n",
+      "docs_tool": "none",
+      "license": "BSD-3",
+      "_template": "https://github.com/napari/cookiecutter-napari-plugin"
+    }
+  },
+  "directory": null,
+  "checkout": null
+}
