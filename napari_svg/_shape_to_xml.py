@@ -91,7 +91,7 @@ def path_to_xml(data, svg_props):
 
     Parameters
     ----------
-    path : (N, 2) array
+    data : (N, 2) array
         Path vertices. Only two dimensional paths data are supported.
     svg_props : dict
         svg properties for a shape.
@@ -119,7 +119,7 @@ def polygon_to_xml(data, svg_props):
 
     Parameters
     ----------
-    path : (N, 2) array
+    data : (N, 2) array
         Polygon vertices. Only two dimensional polygons data are supported.
     svg_props : dict
         svg properties for a shape.
@@ -146,7 +146,7 @@ def rectangle_to_xml(data, svg_props):
 
     Parameters
     ----------
-    path : (N, 2) array
+    data : (N, 2) array
         Rectangle vertices. Only two dimensional rectangles data are supported.
     svg_props : dict
         svg properties for a shape.

@@ -8,14 +8,14 @@ def xml_to_svg(xml_list, extrema):
 
     Parameters
     ----------
-    xml : list of xml.etree.ElementTree.Element
+    xml_list : list of xml.etree.ElementTree.Element
         List of a xml elements in the svg specification.
     extrema : array (2, 2)
         Extrema of data, specified as a minumum then maximum of the (x, y)
         coordinates. Used to specify the view box of SVG canvas.
 
     Returns
-    ----------
+    -------
     svg : string
         SVG representation of the layer.
     """

@@ -29,8 +29,6 @@ def napari_get_writer(path, layer_types):
     layer_types : list of str
         List of layer types that will be provided to the writer. Layer types
         must be contained in the list of currently supported layers.
-    meta : dict
-        Image metadata.
 
     Returns
     -------
@@ -55,7 +53,7 @@ def napari_get_writer(path, layer_types):
 
 def writer(path, layer_data):
     """Write layer data to an svg.
-    
+
     Parameters
     ----------
     path : str
