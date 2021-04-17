@@ -4,7 +4,7 @@
 import os
 import codecs
 from setuptools import setup, find_packages
-from pathlib import Path
+import os.path as osp
 
 
 def read(fname):
@@ -13,15 +13,13 @@ def read(fname):
 
 
 # Add your dependencies here
-
-reqtxt = Path('requirements') / 'default.txt'
-
 requirements = []
-for line in reqtxt.read_text().splitlines():
-    splitted = line.split("#")
-    stripped = splitted[0].strip()
-    if len(stripped) > 0:
-        requirements.append(stripped)
+with open(osp.join('requirements', 'default.txt')) as f:
+    for line in f:
+        splitted = line.split("#")
+        stripped = splitted[0].strip()
+        if len(stripped) > 0:
+            requirements.append(stripped)
 
 
 setup(
