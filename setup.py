@@ -4,7 +4,7 @@
 import os
 import codecs
 from setuptools import setup, find_packages
-import os.path as osp
+from pathlib import Path
 
 
 def read(fname):
@@ -13,18 +13,20 @@ def read(fname):
 
 
 # Add your dependencies here
+
+reqtxt = Path('requirements') / 'default.txt'
+
 requirements = []
-with open(osp.join('requirements', 'default.txt')) as f:
-    for line in f:
-        splitted = line.split("#")
-        stripped = splitted[0].strip()
-        if len(stripped) > 0:
-            requirements.append(stripped)
+for line in reqtxt.read_text().splitlines():
+    splitted = line.split("#")
+    stripped = splitted[0].strip()
+    if len(stripped) > 0:
+        requirements.append(stripped)
 
 
 setup(
     name='napari-svg',
-    version='0.1.4',
+    version='0.1.5',
     author='Nicholas Sofroniew',
     author_email='sofroniewn@gmail.com',
     maintainer='Nicholas Sofroniew',

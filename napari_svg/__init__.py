@@ -6,3 +6,5 @@ from .hook_implementations import (
     napari_write_shapes,
     napari_write_vectors,
 )
+
+__version__ = '0.1.5'
