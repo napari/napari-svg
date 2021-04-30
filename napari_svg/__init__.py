@@ -1,3 +1,9 @@
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "not-installed"
+
+
 from .hook_implementations import (
     napari_get_writer,
     napari_write_image,
@@ -7,4 +13,3 @@ from .hook_implementations import (
     napari_write_vectors,
 )
 
-__version__ = '0.1.5'
