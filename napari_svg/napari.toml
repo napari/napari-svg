@@ -1,0 +1,14 @@
+name = "napari-svg"
+display_name = "Napari SVG"
+license = "BSD-3-Clause"
+entry_point = "napari_svg"
+
+[[contributes.commands]]
+command = "napari_svg.svg_writer"
+title = "Napari SVG writer"
+python_name="napari_svg.hook_implementations:writer"
+
+[[contributes.writers]]
+command = "napari_svg.svg_writer"
+layer_types = ["all"]
+filename_extensions = [".svg"]
