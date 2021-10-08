@@ -1,5 +1,5 @@
 name = "napari_svg"
-display_name = "Napari SVG"
+display_name = "napari SVG"
 license = "BSD-3-Clause"
 entry_point = "napari_svg"
 
@@ -10,5 +10,5 @@ python_name="napari_svg.hook_implementations:writer"
 
 [[contributions.writers]]
 command = "napari_svg.svg_writer"
-layer_types = ["image","labels","points","shapes","vector"]
+layer_types = ["image*","labels*","points*","shapes*","vectors*"]
 filename_extensions = [".svg"]
