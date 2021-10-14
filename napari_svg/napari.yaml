@@ -11,3 +11,4 @@ contributions:
     - command: napari_svg.svg_writer
       layer_types: ["image*","labels*","points*","shapes*","vectors*"]
       filename_extensions: [".svg"]
+      save_dialog_title: napari SVG
