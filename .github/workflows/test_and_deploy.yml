@@ -62,7 +62,6 @@ jobs:
       - name: Test with tox
         run: |      
           git tag
-          cat napari_svg/_version.py
           tox
         env:
           PLATFORM: ${{ matrix.platform }}
