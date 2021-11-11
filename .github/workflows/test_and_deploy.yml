@@ -58,11 +58,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools>=6.3 tox tox-gh-actions
 
+      - name: print tags
+        run: |
+           git fetch --prune --unshallow --tags
+           git tag -l
+
       # this runs the platform-specific tests declared in tox.ini
       - name: Test with tox
-        run: |      
-          git tag
-          tox
+        run: tox
         env:
           PLATFORM: ${{ matrix.platform }}
 
