@@ -1,7 +1,5 @@
 name: napari_svg
 display_name: napari SVG
-license: BSD-3-Clause
-entry_point: napari_svg
 contributions:
   commands:
     - id: napari_svg.svg_writer
@@ -9,5 +7,5 @@ contributions:
       python_name: napari_svg.hook_implementations:writer
   writers:
     - command: napari_svg.svg_writer
-      layer_types: ["image*","labels*","points*","shapes*","vectors*"]
+      layer_types: ["image*", "labels*", "points*", "shapes*", "vectors*"]
       filename_extensions: [".svg"]
