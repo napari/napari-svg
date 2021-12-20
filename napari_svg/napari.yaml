@@ -1,11 +1,11 @@
-name: napari_svg
+name: napari-svg
 display_name: napari SVG
 contributions:
   commands:
-    - id: napari_svg.svg_writer
+    - id: napari-svg.svg_writer
       title: Write SVG
       python_name: napari_svg.hook_implementations:writer
   writers:
-    - command: napari_svg.svg_writer
+    - command: napari-svg.svg_writer
       layer_types: ["image*", "labels*", "points*", "shapes*", "vectors*"]
       filename_extensions: [".svg"]
