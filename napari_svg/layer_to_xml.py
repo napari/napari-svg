@@ -153,7 +153,9 @@ def points_to_xml(data, meta):
     """
     # Extract metadata parameters
     if 'size' in meta:
-        size = np.mean(meta['size'], axis=1)
+        size = meta['size']
+        if size.ndim == 2:
+            size = np.mean(size, axis=1)
     else:
         size = np.ones(data.shape[0])
 
