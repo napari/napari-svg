@@ -26,7 +26,7 @@ jobs:
         python-version: [3.7, 3.8, 3.9]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -47,8 +47,14 @@ jobs:
       # strategy borrowed from vispy for installing opengl libs on windows
       - name: Install Windows OpenGL
         if: runner.os == 'Windows'
+        uses: actions/checkout@v3
+        with:
+          path: gl-ci-helpers
+          repository: pyvista/gl-ci-helpers
+          fetch-depth: 1
+      - name: Install Windows OpenGL
+        if: runner.os == 'Windows'
         run: |
-          git clone --depth 1 git://github.com/pyvista/gl-ci-helpers.git
           powershell gl-ci-helpers/appveyor/install_opengl.ps1
 
       # note: if you need dependencies from conda, considering using
