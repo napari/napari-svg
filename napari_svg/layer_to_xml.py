@@ -3,6 +3,7 @@ from base64 import b64encode
 import numpy as np
 from copy import copy
 from imageio import imwrite
+from napari.utils.colormaps.colormap_utils import ensure_colormap
 from vispy.color import get_colormap
 from ._shape_to_xml import (
     ellipse_to_xml,
@@ -20,6 +21,23 @@ shape_type_to_xml = {
     'polygon': polygon_to_xml,
     'rectangle': rectangle_to_xml,
 }
+
+
+def _apply_vispy_colormap(image, colormap_name):
+    # convert 'gray' colormap name to 'grays' for vispy compatibility
+    # see: https://github.com/napari/napari-svg/pull/12
+    if colormap_name == 'gray':
+        colormap_name = 'grays'
+
+    cmap = get_colormap(colormap_name)
+
+    return cmap[image.ravel()].RGBA.reshape(image.shape + (4,))
+
+
+def _apply_napari_colormap(image, colormap):
+    cmap = ensure_colormap(colormap)
+
+    return np.round(cmap.map(image) * 225)
 
 
 def image_to_xml(data, meta):
@@ -65,14 +83,14 @@ def image_to_xml(data, meta):
         contrast_limits = [0, 1]
 
     if 'colormap' in meta:
-        colormap_name = meta['colormap']
-
-        # convert 'gray' colormap name to 'grays' for vispy compatibility
-        # see: https://github.com/napari/napari-svg/pull/12
-        if colormap_name == 'gray':
-            colormap_name = 'grays'
+        colormap = meta['colormap']
+        if isinstance(colormap, str):
+            # fallback for backward compatibility
+            apply_colormap = lambda image: _apply_vispy_colormap(image, colormap)
+        else:
+            apply_colormap = lambda image: _apply_napari_colormap(image, colormap)
     else:
-        colormap_name = 'grays'
+        apply_colormap = lambda image: _apply_vispy_colormap(image, 'grays')
 
     if 'opacity' in meta:
         opacity = meta['opacity']
@@ -104,14 +122,7 @@ def image_to_xml(data, meta):
         if color_range != 0:
             image = image / color_range
 
-        # get colormap
-        # TODO: Currently we only support vispy colormaps, need to
-        # add support for all napari colormaps, matters for Labels too.
-        cmap = get_colormap(colormap_name)
-            
-        # apply colormap to data
-        mapped_image = cmap[image.ravel()]
-        mapped_image = mapped_image.RGBA.reshape(image.shape + (4,))
+        mapped_image = apply_colormap(image)
 
     image_str = imwrite('<bytes>', mapped_image, format='png')
     image_str = "data:image/png;base64," + str(b64encode(image_str))[2:-1]
@@ -124,7 +135,7 @@ def image_to_xml(data, meta):
         'image', width=width, height=height, opacity=str(opacity), **props
     )
     xml_list = [xml]
-    
+
     return xml_list, extrema
 
 
