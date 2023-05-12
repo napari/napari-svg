@@ -98,7 +98,9 @@ def image_to_xml(data, meta):
 
         cmap = ensure_colormap(colormap)
 
-        mapped_image = np.round(cmap.map(image) * 225)
+        colors = (cmap.map(np.linspace(0, 1, num=256)) * 255).astype(np.uint8)
+
+        mapped_image = colors[(image * 255).astype(np.uint8)]
 
     image_str = imwrite('<bytes>', mapped_image, format='png')
     image_str = "data:image/png;base64," + str(b64encode(image_str))[2:-1]
