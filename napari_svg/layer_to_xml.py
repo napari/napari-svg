@@ -9,7 +9,9 @@ from packaging.version import parse as parse_version
 
 from napari import __version__ as napari_version
 
-NPARI_GE_4_18 = parse_version(napari_version) >= parse_version("0.4.18")
+NAPARI_GE_4_18 = parse_version(napari_version) >= parse_version("0.4.18")
+BINS_APROX=1024
+
 
 from ._shape_to_xml import (
     ellipse_to_xml,
@@ -105,12 +107,12 @@ def image_to_xml(data, meta):
 
         cmap = ensure_colormap(colormap)
 
-        if NPARI_GE_4_18:
+        if NAPARI_GE_4_18:
             mapped_image = cmap.map(image)
-        elsei:
-            colors = (cmap.map(np.linspace(0, 1, num=256)) * 1024).astype(np.uint8)
+        else:
+            colors = (cmap.map(np.linspace(0, 1, num=BINS_APROX)) * 255).astype(np.uint8)
 
-            mapped_image = colors[(image * 1024).astype(np.uint16)]
+            mapped_image = colors[(image * (BINS_APROX -1)).astype(np.uint16)]
 
     image_str = imwrite('<bytes>', mapped_image, format='png')
     image_str = "data:image/png;base64," + str(b64encode(image_str))[2:-1]
