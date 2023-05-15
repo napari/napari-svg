@@ -110,6 +110,9 @@ def image_to_xml(data, meta):
         if NAPARI_GE_4_18:
             mapped_image = cmap.map(image)
         else:
+            # to keep backward comaptybility with napari before 0.4.18 
+            # to workaround bug in `vmap.map` we approximate colormap using 
+            # BINS_APPROX values
             colors = (cmap.map(np.linspace(0, 1, num=BINS_APROX)) * 255).astype(np.uint8)
 
             mapped_image = colors[(image * (BINS_APROX -1)).astype(np.uint16)]
