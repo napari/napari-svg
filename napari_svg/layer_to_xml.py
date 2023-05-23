@@ -84,9 +84,11 @@ def image_to_xml(data, meta):
     if multiscale:
         data = data[-1]
 
+    data = np.squeeze(data)
+
     # Check if more than 2 dimensional and if so error.
     if data.ndim - int(rgb) > 2:
-        raise ValueError('Image must be 2 dimensional to save as svg')
+        raise ValueError(f'Image must be 2 dimensional, not {data.ndim - int(rgb)} to save as svg')
     else:
         image = data
 
