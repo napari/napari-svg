@@ -84,9 +84,11 @@ def image_to_xml(data, meta):
     if multiscale:
         data = data[-1]
 
+    data = np.squeeze(data)
+
     # Check if more than 2 dimensional and if so error.
     if data.ndim - int(rgb) > 2:
-        raise ValueError('Image must be 2 dimensional to save as svg')
+        raise ValueError(f'Image must be 2 dimensional, not {data.ndim - int(rgb)} to save as svg')
     else:
         image = data
 
@@ -108,7 +110,7 @@ def image_to_xml(data, meta):
         cmap = ensure_colormap(colormap)
 
         if NAPARI_GE_4_18:
-            mapped_image = cmap.map(image)
+            mapped_image = (cmap.map(image) * 255).astype(np.uint8)
         else:
             # to keep backward comaptybility with napari before 0.4.18 
             # to workaround bug in `vmap.map` we approximate colormap using 
