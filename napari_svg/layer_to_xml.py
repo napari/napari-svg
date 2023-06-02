@@ -102,8 +102,8 @@ def image_to_xml(data, meta):
 
         cmap = ensure_colormap(colormap)
 
-        # to keep backward comaptybility with napari before 0.4.18
-        # to workaround bug in `vmap.map` we need ro ravel and reshape
+        # to keep backward compatibility with napari <0.4.18
+        # because of a bug in `vmap.map`, we need to ravel, map, then reshape
         mapped_image = (cmap.map(image.ravel()).reshape(image.shape + (4,)) * 255).astype(np.uint8)
 
     image_str = imwrite('<bytes>', mapped_image, format='png')
