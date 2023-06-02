@@ -4,13 +4,6 @@ import numpy as np
 from copy import copy
 from imageio import imwrite
 from napari.utils.colormaps.colormap_utils import ensure_colormap
-from packaging.version import parse as parse_version
-
-
-from napari import __version__ as napari_version
-
-NAPARI_GE_4_18 = parse_version(napari_version) >= parse_version("0.4.18")
-BINS_APROX=1024
 
 
 from ._shape_to_xml import (
@@ -109,15 +102,9 @@ def image_to_xml(data, meta):
 
         cmap = ensure_colormap(colormap)
 
-        if NAPARI_GE_4_18:
-            mapped_image = (cmap.map(image) * 255).astype(np.uint8)
-        else:
-            # to keep backward comaptybility with napari before 0.4.18 
-            # to workaround bug in `vmap.map` we approximate colormap using 
-            # BINS_APPROX values
-            colors = (cmap.map(np.linspace(0, 1, num=BINS_APROX)) * 255).astype(np.uint8)
-
-            mapped_image = colors[(image * (BINS_APROX -1)).astype(np.uint16)]
+        # to keep backward comaptybility with napari before 0.4.18
+        # to workaround bug in `vmap.map` we need ro ravel and reshape
+        mapped_image = (cmap.map(image.ravel()).reshape(image.shape + (4,)) * 255).astype(np.uint8)
 
     image_str = imwrite('<bytes>', mapped_image, format='png')
     image_str = "data:image/png;base64," + str(b64encode(image_str))[2:-1]
