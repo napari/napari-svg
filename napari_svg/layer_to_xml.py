@@ -3,7 +3,9 @@ from base64 import b64encode
 import numpy as np
 from copy import copy
 from imageio import imwrite
-from vispy.color import get_colormap
+from napari.utils.colormaps.colormap_utils import ensure_colormap
+
+
 from ._shape_to_xml import (
     ellipse_to_xml,
     line_to_xml,
@@ -64,15 +66,7 @@ def image_to_xml(data, meta):
     else:
         contrast_limits = [0, 1]
 
-    if 'colormap' in meta:
-        colormap_name = meta['colormap']
-
-        # convert 'gray' colormap name to 'grays' for vispy compatibility
-        # see: https://github.com/napari/napari-svg/pull/12
-        if colormap_name == 'gray':
-            colormap_name = 'grays'
-    else:
-        colormap_name = 'grays'
+    colormap = meta.get('colormap', 'gray')
 
     if 'opacity' in meta:
         opacity = meta['opacity']
@@ -83,9 +77,11 @@ def image_to_xml(data, meta):
     if multiscale:
         data = data[-1]
 
+    data = np.squeeze(data)
+
     # Check if more than 2 dimensional and if so error.
     if data.ndim - int(rgb) > 2:
-        raise ValueError('Image must be 2 dimensional to save as svg')
+        raise ValueError(f'Image must be 2 dimensional, not {data.ndim - int(rgb)} to save as svg')
     else:
         image = data
 
@@ -104,14 +100,11 @@ def image_to_xml(data, meta):
         if color_range != 0:
             image = image / color_range
 
-        # get colormap
-        # TODO: Currently we only support vispy colormaps, need to
-        # add support for all napari colormaps, matters for Labels too.
-        cmap = get_colormap(colormap_name)
-            
-        # apply colormap to data
-        mapped_image = cmap[image.ravel()]
-        mapped_image = mapped_image.RGBA.reshape(image.shape + (4,))
+        cmap = ensure_colormap(colormap)
+
+        # to keep backward compatibility with napari <0.4.18
+        # because of a bug in `vmap.map`, we need to ravel, map, then reshape
+        mapped_image = (cmap.map(image.ravel()).reshape(image.shape + (4,)) * 255).astype(np.uint8)
 
     image_str = imwrite('<bytes>', mapped_image, format='png')
     image_str = "data:image/png;base64," + str(b64encode(image_str))[2:-1]
@@ -124,7 +117,7 @@ def image_to_xml(data, meta):
         'image', width=width, height=height, opacity=str(opacity), **props
     )
     xml_list = [xml]
-    
+
     return xml_list, extrema
 
 
@@ -155,6 +148,7 @@ def points_to_xml(data, meta):
     if 'size' in meta:
         size = meta['size']
         if size.ndim == 2:
+            # backward compatibility for napari<v0.4.18 with anisotropic sizes
             size = np.mean(size, axis=1)
     else:
         size = np.ones(data.shape[0])
