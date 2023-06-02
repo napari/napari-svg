@@ -148,6 +148,7 @@ def points_to_xml(data, meta):
     if 'size' in meta:
         size = meta['size']
         if size.ndim == 2:
+            # backward compatibility for napari<v0.4.18 with anisotropic sizes
             size = np.mean(size, axis=1)
     else:
         size = np.ones(data.shape[0])
