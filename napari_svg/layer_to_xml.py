@@ -3,7 +3,23 @@ from base64 import b64encode
 import numpy as np
 from copy import copy
 from imageio import imwrite
-from napari.utils.colormaps.colormap_utils import ensure_colormap
+
+try:
+    from napari.utils.colormaps.colormap_utils import ensure_colormap
+except ImportError:
+    def ensure_colormap(cmap):
+        from vispy.color import get_colormap
+        
+        cmap_ = get_colormap(cmap)
+
+        class CmapWrap:
+            def __init__(self, cmap):
+                self._cmap = cmap
+
+            def map(self, image):
+                return self._cmap[image].RGBA/255
+
+        return CmapWrap(cmap_)
 
 
 from ._shape_to_xml import (
