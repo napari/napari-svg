@@ -6,7 +6,7 @@ from imageio import imwrite
 
 try:
     from napari.utils.colormaps.colormap_utils import ensure_colormap
-except ImportError:
+except ImportError:  # pragma: no cover
     def ensure_colormap(cmap):
         return _ensure_colormap(cmap)
 
