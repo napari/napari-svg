@@ -11,6 +11,8 @@ from napari_svg import (
     napari_write_vectors,
 )
 
+from napari_svg.layer_to_xml import _ensure_colormap
+
 
 @pytest.fixture(params=['image', 'labels', 'points', 'shapes', 'shapes-rectangles', 'vectors'])
 def layer_writer_and_data(request):
@@ -127,6 +129,26 @@ def test_no_write_image_bad_extension(tmpdir, layer_writer_and_data):
 def test_write_image_colormaps(tmpdir, layer_writer_and_data, colormap):
     writer, layer_data, _ = layer_writer_and_data
     layer_data[1]['colormap'] = colormap
+
+    path = os.path.join(tmpdir, 'layer_file.svg')
+
+    # Check file does not exist
+    assert not os.path.isfile(path)
+
+    # Write data
+    return_path = writer(path, layer_data[0], layer_data[1])
+    assert return_path == path
+
+    # Check file now exists
+    assert os.path.isfile(path)
+
+
+@pytest.mark.parametrize("path_ensure", [True, False])
+def test_write_image_colormaps_vispy(tmpdir, layer_writer_and_data, path_ensure, monkeypatch):
+    if path_ensure:
+        monkeypatch.setattr("napari_svg.layer_to_xml.ensure_colormap", _ensure_colormap)
+    writer, layer_data, _ = layer_writer_and_data
+    layer_data[1]['colormap'] = "autumn"
 
     path = os.path.join(tmpdir, 'layer_file.svg')
 
