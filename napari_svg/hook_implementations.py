@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from napari_plugin_engine import napari_hook_implementation
 import warnings
 
 from .xml_to_svg import xml_to_svg
@@ -16,7 +15,6 @@ labels_to_xml = image_to_xml
 supported_layers = ['image', 'points', 'labels', 'shapes', 'vectors']
 
 
-@napari_hook_implementation(trylast=True)
 def napari_get_writer(path, layer_types):
     """Write layer data to an svg.
 
@@ -66,7 +64,7 @@ def writer(path, layer_data):
     path : str or None
         If data is successfully written, return the ``path`` that was written.
         Otherwise, if nothing was done, return ``None``.
-    """    
+    """
     ext = os.path.splitext(path)[1]
     if ext == '':
         path = path + '.svg'
@@ -112,7 +110,6 @@ def writer(path, layer_data):
     return path
 
 
-@napari_hook_implementation(trylast=True)
 def napari_write_image(path, data, meta):
     """Write image data to an svg.
 
@@ -156,7 +153,6 @@ def napari_write_image(path, data, meta):
 
 
 
-@napari_hook_implementation(trylast=True)
 def napari_write_labels(path, data, meta):
     """Write labels data to an svg.
 
@@ -199,7 +195,6 @@ def napari_write_labels(path, data, meta):
     return path
 
 
-@napari_hook_implementation
 def napari_write_points(path, data, meta):
     """Write points data to an svg.
 
@@ -242,7 +237,6 @@ def napari_write_points(path, data, meta):
     return path
 
 
-@napari_hook_implementation
 def napari_write_shapes(path, data, meta):
     """Write shapes data to an svg.
 
@@ -284,7 +278,6 @@ def napari_write_shapes(path, data, meta):
     return path
 
 
-@napari_hook_implementation
 def napari_write_vectors(path, data, meta):
     """Write vectors data to an svg.
 
