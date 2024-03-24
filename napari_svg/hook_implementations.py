@@ -110,7 +110,6 @@ def writer(path, layer_data):
     return path
 
 
-@napari_hook_implementation(trylast=True)
 def napari_write_image(path, data, meta):
     """Write image data to an svg.
 
@@ -154,7 +153,6 @@ def napari_write_image(path, data, meta):
 
 
 
-@napari_hook_implementation(trylast=True)
 def napari_write_labels(path, data, meta):
     """Write labels data to an svg.
 
@@ -197,7 +195,6 @@ def napari_write_labels(path, data, meta):
     return path
 
 
-@napari_hook_implementation
 def napari_write_points(path, data, meta):
     """Write points data to an svg.
 
@@ -240,7 +237,6 @@ def napari_write_points(path, data, meta):
     return path
 
 
-@napari_hook_implementation
 def napari_write_shapes(path, data, meta):
     """Write shapes data to an svg.
 
@@ -282,7 +278,6 @@ def napari_write_shapes(path, data, meta):
     return path
 
 
-@napari_hook_implementation
 def napari_write_vectors(path, data, meta):
     """Write vectors data to an svg.
 
