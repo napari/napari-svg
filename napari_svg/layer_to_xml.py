@@ -178,16 +178,20 @@ def points_to_xml(data, meta):
     else:
         face_color = np.ones((data.shape[0], 4))
 
-    if 'edge_color' in meta:
-        edge_color = meta['edge_color']
+    if 'border_color' in meta:
+        stroke_color = meta['border_color']
+    elif 'edge_color' in meta:
+        stroke_color = meta['edge_color']
     else:
-        edge_color = np.zeros((data.shape[0], 4))
-        edge_color[:, 3] = 1
+        stroke_color = np.zeros((data.shape[0], 4))
+        stroke_color[:, 3] = 1
 
-    if 'edge_width' in meta:
-        edge_width = meta['edge_width']
+    if 'border_width' in meta:
+        stroke_width = meta['border_width']
+    elif 'edge_width' in meta:
+        stroke_width = meta['edge_width']
     else:
-        edge_width = 1
+        stroke_width = 1
 
     if 'opacity' in meta:
         opacity = meta['opacity']
@@ -203,10 +207,10 @@ def points_to_xml(data, meta):
     # Find extrema of data
     extrema = np.array([points.min(axis=0), points.max(axis=0)])
 
-    props = {'stroke-width': str(edge_width), 'opacity': str(opacity)}
+    props = {'stroke-width': str(stroke_width), 'opacity': str(opacity)}
 
     xml_list = []
-    for p, s, fc, ec in zip(points, size, face_color, edge_color):
+    for p, s, fc, ec in zip(points, size, face_color, stroke_color):
         cx = str(p[1])
         cy = str(p[0])
         r = str(s / 2)
