@@ -210,14 +210,14 @@ def points_to_xml(data, meta):
     props = {'stroke-width': str(stroke_width), 'opacity': str(opacity)}
 
     xml_list = []
-    for p, s, fc, ec in zip(points, size, face_color, stroke_color):
+    for p, s, fc, sc in zip(points, size, face_color, stroke_color):
         cx = str(p[1])
         cy = str(p[0])
         r = str(s / 2)
         fc_int = (255 * fc).astype(int)
         fill = f'rgb{tuple(fc_int[:3])}'
-        ec_int = (255 * ec).astype(int)
-        stroke = f'rgb{tuple(ec_int[:3])}'
+        sc_int = (255 * sc).astype(int)
+        stroke = f'rgb{tuple(sc_int[:3])}'
         element = Element(
             'circle', cx=cx, cy=cy, r=r, stroke=stroke, fill=fill, **props
         )
