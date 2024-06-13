@@ -191,7 +191,7 @@ def points_to_xml(data, meta):
     elif 'edge_width' in meta:
         stroke_width = meta['edge_width']
     else:
-        stroke_width = 1
+        stroke_width = np.ones((data.shape[0],))
 
     if 'opacity' in meta:
         opacity = meta['opacity']
@@ -207,10 +207,12 @@ def points_to_xml(data, meta):
     # Find extrema of data
     extrema = np.array([points.min(axis=0), points.max(axis=0)])
 
-    props = {'stroke-width': str(stroke_width), 'opacity': str(opacity)}
+    # Ensure stroke width is an array to handle older versions of
+    # napari (e.g. v0.4.0) where it could be a scalar.
+    stroke_width = np.broadcast_to(stroke_width, (data.shape[0],))
 
     xml_list = []
-    for p, s, fc, sc in zip(points, size, face_color, stroke_color):
+    for p, s, fc, sc, sw in zip(points, size, face_color, stroke_color, stroke_width):
         cx = str(p[1])
         cy = str(p[0])
         r = str(s / 2)
@@ -218,6 +220,10 @@ def points_to_xml(data, meta):
         fill = f'rgb{tuple(fc_int[:3])}'
         sc_int = (255 * sc).astype(int)
         stroke = f'rgb{tuple(sc_int[:3])}'
+        props = {
+            'stroke-width': str(sw),
+            'opacity': str(opacity),
+        }
         element = Element(
             'circle', cx=cx, cy=cy, r=r, stroke=stroke, fill=fill, **props
         )
