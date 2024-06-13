@@ -209,7 +209,10 @@ def points_to_xml(data, meta):
 
     # Ensure stroke width is an array to handle older versions of
     # napari (e.g. v0.4.0) where it could be a scalar.
-    stroke_width = np.broadcast_to(stroke_width, (data.shape[0],))
+    stroke_width = np.broadcast_to(stroke_width, (data.shape[0],)).copy()
+
+    if meta.get('border_width_is_relative', False):
+        stroke_width *= size
 
     xml_list = []
     for p, s, fc, sc, sw in zip(points, size, face_color, stroke_color, stroke_width):
