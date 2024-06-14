@@ -211,7 +211,7 @@ def points_to_xml(data, meta):
     # napari (e.g. v0.4.0) where it could be a scalar.
     stroke_width = np.broadcast_to(stroke_width, (data.shape[0],)).copy()
 
-    if meta.get('border_width_is_relative', False):
+    if meta.get('border_width_is_relative') or meta.get('edge_width_is_relative'):
         stroke_width *= size
 
     xml_list = []
