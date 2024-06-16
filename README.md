@@ -6,7 +6,7 @@
 [![tests](https://github.com/napari/napari-svg/workflows/tests/badge.svg)](https://github.com/napari/napari-svg/actions)
 [![codecov](https://codecov.io/gh/napari/napari-svg/branch/master/graph/badge.svg)](https://codecov.io/gh/napari/napari-svg)
 
-A plugin for reading and writing svg files with napari
+A plugin for writing svg files with napari
 
 ----------------------------------
 

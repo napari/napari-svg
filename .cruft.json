@@ -8,7 +8,7 @@
       "github_username": "napari",
       "plugin_name": "svg",
       "module_name": "napari_svg",
-      "short_description": "A plugin for reading and writing svg files with napari",
+      "short_description": "A plugin for writing svg files with napari",
       "include_reader_plugin": "n",
       "include_writer_plugin": "y",
       "include_dock_widget_plugin": "n",
