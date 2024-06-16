@@ -44,6 +44,44 @@ shape_type_to_xml = {
 }
 
 
+def layer_transforms_to_xml_string(meta):
+    """Get the xml representation[1]_ of the layer transforms.
+
+    Parameters
+    ----------
+    meta : dict
+        The metadata tuple from the layer.
+
+    Returns
+    -------
+    tf_list : str
+        The transformation list represented as a string.
+
+    References
+    ----------
+    .. [1] https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+    """
+    scale = meta['scale'][::-1]
+    translate = meta['translate'][::-1]
+    rotate = -meta['rotate']
+    skewx = meta['shear'][1]
+    skewy = meta['shear'][0]
+    # matrix elements after converting row-column to y, x, first
+    # flipping the rows and then the first two columns of the matrix:
+    # a c e   ->   b d f   ->   d b f
+    # b d f   ->   a c e   ->   c a e
+    d, b, f, c, a, e = np.asarray(meta['affine'])[:-1].ravel()
+    strs = [
+        f'scale({scale[0]}, {scale[1]})',
+        f'translate({translate[0]} {translate[1]})',
+        f'rotate({rotate})',
+        f'skewX({skewx})',
+        f'skewY({skewy})',
+        f'matrix({a} {b} {c} {d} {e} {f})',
+    ]
+    return '\n'.join(strs)
+
+
 def image_to_xml(data, meta):
     """Generates a xml data for an image.
 
