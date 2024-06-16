@@ -178,16 +178,20 @@ def points_to_xml(data, meta):
     else:
         face_color = np.ones((data.shape[0], 4))
 
-    if 'edge_color' in meta:
-        edge_color = meta['edge_color']
+    if 'border_color' in meta:
+        stroke_color = meta['border_color']
+    elif 'edge_color' in meta:
+        stroke_color = meta['edge_color']
     else:
-        edge_color = np.zeros((data.shape[0], 4))
-        edge_color[:, 3] = 1
+        stroke_color = np.zeros((data.shape[0], 4))
+        stroke_color[:, 3] = 1
 
-    if 'edge_width' in meta:
-        edge_width = meta['edge_width']
+    if 'border_width' in meta:
+        stroke_width = meta['border_width']
+    elif 'edge_width' in meta:
+        stroke_width = meta['edge_width']
     else:
-        edge_width = 1
+        stroke_width = np.ones((data.shape[0],))
 
     if 'opacity' in meta:
         opacity = meta['opacity']
@@ -203,17 +207,26 @@ def points_to_xml(data, meta):
     # Find extrema of data
     extrema = np.array([points.min(axis=0), points.max(axis=0)])
 
-    props = {'stroke-width': str(edge_width), 'opacity': str(opacity)}
+    # Ensure stroke width is an array to handle older versions of
+    # napari (e.g. v0.4.0) where it could be a scalar.
+    stroke_width = np.broadcast_to(stroke_width, (data.shape[0],)).copy()
+
+    if meta.get('border_width_is_relative') or meta.get('edge_width_is_relative'):
+        stroke_width *= size
 
     xml_list = []
-    for p, s, fc, ec in zip(points, size, face_color, edge_color):
+    for p, s, fc, sc, sw in zip(points, size, face_color, stroke_color, stroke_width):
         cx = str(p[1])
         cy = str(p[0])
         r = str(s / 2)
         fc_int = (255 * fc).astype(int)
         fill = f'rgb{tuple(fc_int[:3])}'
-        ec_int = (255 * ec).astype(int)
-        stroke = f'rgb{tuple(ec_int[:3])}'
+        sc_int = (255 * sc).astype(int)
+        stroke = f'rgb{tuple(sc_int[:3])}'
+        props = {
+            'stroke-width': str(sw),
+            'opacity': str(opacity),
+        }
         element = Element(
             'circle', cx=cx, cy=cy, r=r, stroke=stroke, fill=fill, **props
         )

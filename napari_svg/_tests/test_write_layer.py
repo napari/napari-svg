@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pytest
+from pathlib import Path
 from napari.layers import Image, Points, Labels, Shapes, Vectors
 from napari.utils.colormaps.colormap_utils import ensure_colormap
 from napari_svg import (
@@ -161,3 +162,33 @@ def test_write_image_colormaps_vispy(tmpdir, layer_writer_and_data, path_ensure,
 
     # Check file now exists
     assert os.path.isfile(path)
+
+
+def test_write_points_with_attributes(request, tmp_path):
+    data = [
+        [0, 0],
+        [0, 128],
+        [128, 128],
+    ]
+    size = [16, 20, 24]
+    face_color = ['red', 'green', 'blue']
+    edge_color = ['cyan', 'magenta', 'yellow']
+    edge_width = [0.05, 0.25, 0.5]
+    layer = Points(
+        data,
+        opacity=0.5,
+        size=size,
+        face_color=face_color,
+        edge_color=edge_color,
+        edge_width=edge_width,
+        edge_width_is_relative=True,
+    )
+    test_name = request.node.name
+    path = tmp_path / f'{test_name}-actual.svg'
+    layer_data, layer_attrs, _ = layer.as_layer_data_tuple()
+
+    return_path = napari_write_points(path, layer_data, layer_attrs)
+    assert return_path == path
+
+    expected_path = Path(__file__).parent / f'{test_name}-expected.svg'
+    assert path.read_text() == expected_path.read_text()
