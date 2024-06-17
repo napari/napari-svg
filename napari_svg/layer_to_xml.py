@@ -79,7 +79,7 @@ def layer_transforms_to_xml_string(meta):
         # f'skewY({skewy})',
         f'matrix({a} {b} {c} {d} {e} {f})',
     ]
-    return '\n'.join(strs)
+    return ' '.join(strs[::-1])
 
 
 def image_to_xml(data, meta):
