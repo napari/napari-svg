@@ -321,6 +321,17 @@ def points_to_xml(data, meta):
     return xml_list, extrema
 
 
+def extrema_shapes(shapes_data, meta):
+    """Compute the extrema of points, taking transformations into account."""
+    matrix, offset = make_linear_matrix_and_offset(meta)
+    # TODO: account for point sizes below, not just positions
+    data = np.concatenate(shapes_data, axis=0)
+    transformed_data = data @ matrix.T + offset
+    return np.array([
+        np.min(transformed_data, axis=0), np.max(transformed_data, axis=0)
+    ])
+
+
 def shapes_to_xml(data, meta):
     """Generates a xml data for shapes.
 
@@ -379,10 +390,10 @@ def shapes_to_xml(data, meta):
 
     if len(shapes) > 0:
         # Find extrema of data
-        mins = np.min([np.min(d, axis=0) for d in shapes], axis=0)
-        maxs = np.max([np.max(d, axis=0) for d in shapes], axis=0)
-        extrema = np.array([mins, maxs])
+        extrema = extrema_shapes(shapes, meta)
+        print(meta['name'], extrema)
     else:
+        # use nan — these will be discarded when aggregating all layers
         extrema = np.full((2, 2), np.nan)
 
     transform = layer_transforms_to_xml_string(meta)
