@@ -45,7 +45,7 @@ shape_type_to_xml = {
 
 
 def layer_transforms_to_xml_string(meta):
-    """Get the xml representation[1]_ of the layer transforms.
+    """Get the xml representation[1]_[2]_ of the layer transforms.
 
     Parameters
     ----------
@@ -60,6 +60,7 @@ def layer_transforms_to_xml_string(meta):
     References
     ----------
     .. [1] https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+    .. [2] https://www.w3.org/TR/css-transforms-1/
     """
     scale = meta['scale'][::-1]
     translate = meta['translate'][::-1]
@@ -68,6 +69,7 @@ def layer_transforms_to_xml_string(meta):
     # the latter is in degrees.
     # skew along x can be achieved by combining skewY with a rotation of the
     # same amount.
+    # https://www.w3.org/TR/css-transforms-1/#funcdef-transform-skewy
     skewy = np.degrees(np.arctan2(meta['shear'][0]))
     # matrix elements after converting row-column to y, x, first
     # flipping the rows and then the first two columns of the matrix:
