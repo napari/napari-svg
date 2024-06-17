@@ -87,6 +87,11 @@ def layer_transforms_to_xml_string(meta):
     # inverted here.
     return ' '.join(strs[::-1])
 
+def extrema_image(image, meta):
+    """Compute the extrema of an image layer, accounting for transforms."""
+    coords = np.array([[0, 0], list(image.shape)])
+    return extrema_coords(coords, meta)
+
 
 def image_to_xml(data, meta):
     """Generates a xml data for an image.
@@ -150,7 +155,7 @@ def image_to_xml(data, meta):
         image = data
 
     # Find extrema of data
-    extrema = np.array([[0, 0], [image.shape[0], image.shape[1]]])
+    extrema = extrema_image(image, meta)
 
     if rgb:
         mapped_image = image
