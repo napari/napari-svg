@@ -322,7 +322,7 @@ def points_to_xml(data, meta):
 
 
 def extrema_shapes(shapes_data, meta):
-    """Compute the extrema of points, taking transformations into account."""
+    """Compute the extrema of shapes, taking transformations into account."""
     matrix, offset = make_linear_matrix_and_offset(meta)
     # TODO: account for point sizes below, not just positions
     data = np.concatenate(shapes_data, axis=0)
