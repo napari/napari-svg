@@ -398,7 +398,6 @@ def shapes_to_xml(data, meta):
     if len(shapes) > 0:
         # Find extrema of data
         extrema = extrema_shapes(shapes, meta)
-        print(meta['name'], extrema)
     else:
         # use nan — these will be discarded when aggregating all layers
         extrema = np.full((2, 2), np.nan)
