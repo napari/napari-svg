@@ -201,7 +201,7 @@ def make_linear_matrix_and_offset(meta):
     affine = np.array(meta['affine'])
     linear = affine[:2, :2]
     affine_tr = affine[:2, 2]
-    matrix = linear @ (rotate @ shear @ scale + translate)
+    matrix = linear @ (rotate @ shear @ scale)
     offset = linear @ translate + affine_tr
     return matrix, offset
 
