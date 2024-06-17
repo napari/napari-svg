@@ -420,6 +420,18 @@ def shapes_to_xml(data, meta):
     xml_list = [raw_xml_list[i] for i in z_order]
     return xml_list, extrema
 
+def extrema_vectors(vectors, meta):
+    """Compute the extrema of vectors, taking projections into account."""
+    length = meta.get('length', 1)
+    start_ends = np.empty(
+        (vectors.shape[0] * vectors.shape[1], vectors.shape[-1]),
+        dtype=vectors.dtype,
+    )
+    start_ends[:vectors.shape[0]] = vectors[:, 0, :]
+    start_ends[vectors.shape[0]:] = (
+        vectors[:, 0, :] + length * vectors[:, 1, :]
+    )
+    return extrema_coords(start_ends, meta)
 
 def vectors_to_xml(data, meta):
     """Generates a xml data for vectors.
@@ -472,11 +484,7 @@ def vectors_to_xml(data, meta):
         vectors = data
 
     # Find extrema of data
-    full_vectors = copy(vectors)
-    full_vectors[:, 1, :] = vectors[:, 0, :] + length * vectors[:, 1, :]
-    mins = np.min(full_vectors, axis=(0, 1))
-    maxs = np.max(full_vectors, axis=(0, 1))
-    extrema = np.array([mins, maxs])
+    extrema = extrema_vectors(vectors, meta)
 
     transform = layer_transforms_to_xml_string(meta)
     props = {
