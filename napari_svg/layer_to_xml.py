@@ -62,20 +62,21 @@ def layer_transforms_to_xml_string(meta):
     .. [1] https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
     .. [2] https://www.w3.org/TR/css-transforms-1/
     """
-    scale = meta['scale'][::-1]
-    translate = meta['translate'][::-1]
-    rotate = np.degrees(np.arctan2(meta['rotate'][0][1], meta['rotate'][1][1]))
+    scale = meta.get('scale', [1, 1])[::-1]
+    translate = meta.get('translate', [0, 0])[::-1]
+    rotmat = meta.get('rotate', [[1, 0], [0, 1]])
+    rotate = np.degrees(np.arctan2(rotmat[0][1], rotmat[1][1]))
     # 'shear' in napari specifies the skew along the y-axis in CSS/SVG, but
     # the latter is in degrees.
     # skew along x can be achieved by combining skewY with a rotation of the
     # same amount.
     # https://www.w3.org/TR/css-transforms-1/#funcdef-transform-skewy
-    skewy = np.degrees(np.arctan2(meta['shear'][0], 1))
+    skewy = np.degrees(np.arctan2(meta.get('shear', [0])[0], 1))
     # matrix elements after converting row-column to y, x, first
     # flipping the rows and then the first two columns of the matrix:
     # a c e   ->   b d f   ->   d b f
     # b d f   ->   a c e   ->   c a e
-    d, b, f, c, a, e = np.asarray(meta['affine'])[:-1].ravel()
+    d, b, f, c, a, e = np.asarray(meta.get('affine', np.eye(3)))[:-1].ravel()
     strs = [
         f'scale({scale[0]} {scale[1]})',
         f'skewY({skewy})',
@@ -89,11 +90,11 @@ def layer_transforms_to_xml_string(meta):
 
 def make_linear_matrix_and_offset(meta):
     """Make a transformation matrix from the layer metadata."""
-    rotate = np.array(meta['rotate'])
-    shear = np.array([[1, meta['shear'][0]], [0, 1]])
-    scale = np.diag(meta['scale'])
-    translate = np.array(meta['translate'])
-    affine = np.array(meta['affine'])
+    rotate = np.array(meta.get('rotate', [[1, 0], [0, 1]]))
+    shear = np.array([[1, meta.get('shear', [0])[0]], [0, 1]])
+    scale = np.diag(meta.get('scale', [1, 1]))
+    translate = np.array(meta.get('translate', [0, 0]))
+    affine = np.array(meta.get('affine', np.eye(3)))
     linear = affine[:2, :2]
     affine_tr = affine[:2, 2]
     matrix = linear @ (rotate @ shear @ scale)
