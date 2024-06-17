@@ -50,7 +50,7 @@ def layer_transforms_to_xml_string(meta):
     Parameters
     ----------
     meta : dict
-        The metadata tuple from the layer.
+        The metadata from the layer.
 
     Returns
     -------
