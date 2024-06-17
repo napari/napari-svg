@@ -64,7 +64,10 @@ def layer_transforms_to_xml_string(meta):
     scale = meta['scale'][::-1]
     translate = meta['translate'][::-1]
     rotate = np.degrees(np.arctan2(meta['rotate'][0][1], meta['rotate'][1][1]))
-    # skewx = meta['shear'][0]
+    # 'shear' in napari specifies the skew along the y-axis in CSS/SVG, but
+    # the latter is in degrees.
+    # skew along x can be achieved by combining skewY with a rotation of the
+    # same amount.
     skewy = np.degrees(np.arctan2(meta['shear'][0]))
     # matrix elements after converting row-column to y, x, first
     # flipping the rows and then the first two columns of the matrix:
@@ -75,10 +78,11 @@ def layer_transforms_to_xml_string(meta):
         f'scale({scale[0]} {scale[1]})',
         f'translate({translate[0]} {translate[1]})',
         f'rotate({rotate})',
-        # f'skewX({skewx})',
         f'skewY({skewy})',
         f'matrix({a} {b} {c} {d} {e} {f})',
     ]
+    # Note: transforms are interpreted right-to-left in svg, so must be
+    # inverted here.
     return ' '.join(strs[::-1])
 
 
