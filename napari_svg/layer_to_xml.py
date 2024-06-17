@@ -78,9 +78,9 @@ def layer_transforms_to_xml_string(meta):
     d, b, f, c, a, e = np.asarray(meta['affine'])[:-1].ravel()
     strs = [
         f'scale({scale[0]} {scale[1]})',
-        f'translate({translate[0]} {translate[1]})',
-        f'rotate({rotate})',
         f'skewY({skewy})',
+        f'rotate({rotate})',
+        f'translate({translate[0]} {translate[1]})',
         f'matrix({a} {b} {c} {d} {e} {f})',
     ]
     # Note: transforms are interpreted right-to-left in svg, so must be
