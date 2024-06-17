@@ -87,6 +87,29 @@ def layer_transforms_to_xml_string(meta):
     # inverted here.
     return ' '.join(strs[::-1])
 
+def make_linear_matrix_and_offset(meta):
+    """Make a transformation matrix from the layer metadata."""
+    rotate = np.array(meta['rotate'])
+    shear = np.array([[1, meta['shear'][0]], [0, 1]])
+    scale = np.diag(meta['scale'])
+    translate = np.array(meta['translate'])
+    affine = np.array(meta['affine'])
+    linear = affine[:2, :2]
+    affine_tr = affine[:2, 2]
+    matrix = linear @ (rotate @ shear @ scale)
+    offset = linear @ translate + affine_tr
+    return matrix, offset
+
+
+def extrema_coords(coords, meta):
+    """Compute the extrema of a set of coordinates after transforms in meta."""
+    matrix, offset = make_linear_matrix_and_offset(meta)
+    transformed_data = coords @ matrix.T + offset
+    return np.array([
+        np.min(transformed_data, axis=0), np.max(transformed_data, axis=0)
+    ])
+
+
 def extrema_image(image, meta):
     """Compute the extrema of an image layer, accounting for transforms."""
     coords = np.array([[0, 0], list(image.shape)])
@@ -195,20 +218,6 @@ def image_to_xml(data, meta):
     xml_list = [xml]
 
     return xml_list, extrema
-
-
-def make_linear_matrix_and_offset(meta):
-    """Make a transformation matrix from the layer metadata."""
-    rotate = np.array(meta['rotate'])
-    shear = np.array([[1, meta['shear'][0]], [0, 1]])
-    scale = np.diag(meta['scale'])
-    translate = np.array(meta['translate'])
-    affine = np.array(meta['affine'])
-    linear = affine[:2, :2]
-    affine_tr = affine[:2, 2]
-    matrix = linear @ (rotate @ shear @ scale)
-    offset = linear @ translate + affine_tr
-    return matrix, offset
 
 
 def extrema_points(data, meta):
@@ -324,15 +333,6 @@ def points_to_xml(data, meta):
     return xml_list, extrema
 
 
-def extrema_coords(coords, meta):
-    """Compute the extrema of a set of coordinates after transforms in meta."""
-    matrix, offset = make_linear_matrix_and_offset(meta)
-    transformed_data = coords @ matrix.T + offset
-    return np.array([
-        np.min(transformed_data, axis=0), np.max(transformed_data, axis=0)
-    ])
-
-
 def extrema_shapes(shapes_data, meta):
     """Compute the extrema of shapes, taking transformations into account."""
     coords = np.concatenate(shapes_data, axis=0)
@@ -425,6 +425,7 @@ def shapes_to_xml(data, meta):
     xml_list = [raw_xml_list[i] for i in z_order]
     return xml_list, extrema
 
+
 def extrema_vectors(vectors, meta):
     """Compute the extrema of vectors, taking projections into account."""
     length = meta.get('length', 1)
@@ -437,6 +438,7 @@ def extrema_vectors(vectors, meta):
         vectors[:, 0, :] + length * vectors[:, 1, :]
     )
     return extrema_coords(start_ends, meta)
+
 
 def vectors_to_xml(data, meta):
     """Generates a xml data for vectors.
