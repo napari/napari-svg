@@ -171,8 +171,15 @@ def image_to_xml(data, meta):
     width = str(image.shape[1])
     height = str(image.shape[0])
 
+    transform = layer_transforms_to_xml_string(meta)
+
     xml = Element(
-        'image', width=width, height=height, opacity=str(opacity), **props
+        'image',
+        width=width,
+        height=height,
+        opacity=str(opacity),
+        transform=transform,
+        **props,
     )
     xml_list = [xml]
 
@@ -252,6 +259,8 @@ def points_to_xml(data, meta):
     if meta.get('border_width_is_relative') or meta.get('edge_width_is_relative'):
         stroke_width *= size
 
+    transform = layer_transforms_to_xml_string(meta)
+
     xml_list = []
     for p, s, fc, sc, sw in zip(points, size, face_color, stroke_color, stroke_width):
         cx = str(p[1])
@@ -266,7 +275,12 @@ def points_to_xml(data, meta):
             'opacity': str(opacity),
         }
         element = Element(
-            'circle', cx=cx, cy=cy, r=r, stroke=stroke, fill=fill, **props
+            'circle',
+            cx=cx, cy=cy, r=r,
+            stroke=stroke,
+            fill=fill,
+            transform=transform,
+            **props,
         )
         xml_list.append(element)
 
@@ -337,10 +351,15 @@ def shapes_to_xml(data, meta):
     else:
         extrema = np.full((2, 2), np.nan)
 
+    transform = layer_transforms_to_xml_string(meta)
     raw_xml_list = []
     zipped = zip(shapes, shape_type, face_color, edge_color, edge_width)
     for s, st, fc, ec, ew in zipped:
-        props = {'stroke-width': str(ew), 'opacity': str(opacity)}
+        props = {
+            'stroke-width': str(ew),
+            'opacity': str(opacity),
+            'transform': transform,
+        }
         fc_int = (255 * fc).astype(int)
         props['fill'] = f'rgb{tuple(fc_int[:3])}'
         ec_int = (255 * ec).astype(int)
@@ -412,7 +431,12 @@ def vectors_to_xml(data, meta):
     maxs = np.max(full_vectors, axis=(0, 1))
     extrema = np.array([mins, maxs])
 
-    props = {'stroke-width': str(edge_width), 'opacity': str(opacity)}
+    transform = layer_transforms_to_xml_string(meta)
+    props = {
+        'stroke-width': str(edge_width),
+        'opacity': str(opacity),
+        'transform': transform,
+    }
 
     xml_list = []
     for v, ec in zip(vectors, edge_color):
