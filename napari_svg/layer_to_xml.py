@@ -192,12 +192,40 @@ def image_to_xml(data, meta):
     return xml_list, extrema
 
 
+def make_linear_matrix_and_offset(meta):
+    """Make a transformation matrix from the layer metadata."""
+    rotate = np.array(meta['rotate'])
+    shear = np.array([[1, meta['shear'][0]], [0, 1]])
+    scale = np.diag(meta['scale'])
+    translate = np.array(meta['translate'])
+    affine = np.array(meta['affine'])
+    linear = affine[:2, :2]
+    affine_tr = affine[:2, 2]
+    matrix = linear @ (rotate @ shear @ scale + translate)
+    offset = linear @ translate + affine_tr
+    return matrix, offset
+
+
+def extrema_points(data, meta):
+    """Compute the extrema of points, taking transformations into account."""
+    matrix, offset = make_linear_matrix_and_offset(meta)
+    # TODO: account for point sizes below, not just positions
+    transformed_data = data @ matrix.T + offset
+    return np.array([
+        np.min(transformed_data, axis=0), np.max(transformed_data, axis=0)
+    ])
+
+
 def points_to_xml(data, meta):
     """Generates a xml data for points.
 
     Only two dimensional points data is supported. Z ordering of the points
     will be taken into account. Each point is represented by a circle. Support
     for other symbols is not yet implemented.
+
+    Note: any shear or anisotropic scaling value will be applied to the
+    points, so the markers themselves will be transformed and not perfect
+    circles anymore.
 
     Parameters
     ----------
@@ -256,7 +284,7 @@ def points_to_xml(data, meta):
         points = data
 
     # Find extrema of data
-    extrema = np.array([points.min(axis=0), points.max(axis=0)])
+    extrema = extrema_points(points, meta)
 
     # Ensure stroke width is an array to handle older versions of
     # napari (e.g. v0.4.0) where it could be a scalar.
