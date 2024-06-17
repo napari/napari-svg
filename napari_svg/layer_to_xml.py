@@ -208,12 +208,10 @@ def make_linear_matrix_and_offset(meta):
 
 def extrema_points(data, meta):
     """Compute the extrema of points, taking transformations into account."""
-    matrix, offset = make_linear_matrix_and_offset(meta)
     # TODO: account for point sizes below, not just positions
-    transformed_data = data @ matrix.T + offset
-    return np.array([
-        np.min(transformed_data, axis=0), np.max(transformed_data, axis=0)
-    ])
+    # could do so by offsetting coordinates along both axes, see for example:
+    # https://github.com/scikit-image/scikit-image/blob/fa2a326a734c14b05c25057b03d31c84a6c8a635/skimage/morphology/convex_hull.py#L138-L140
+    return extrema_coords(data, meta)
 
 
 def points_to_xml(data, meta):
@@ -321,15 +319,19 @@ def points_to_xml(data, meta):
     return xml_list, extrema
 
 
-def extrema_shapes(shapes_data, meta):
-    """Compute the extrema of shapes, taking transformations into account."""
+def extrema_coords(coords, meta):
+    """Compute the extrema of a set of coordinates after transforms in meta."""
     matrix, offset = make_linear_matrix_and_offset(meta)
-    # TODO: account for point sizes below, not just positions
-    data = np.concatenate(shapes_data, axis=0)
-    transformed_data = data @ matrix.T + offset
+    transformed_data = coords @ matrix.T + offset
     return np.array([
         np.min(transformed_data, axis=0), np.max(transformed_data, axis=0)
     ])
+
+
+def extrema_shapes(shapes_data, meta):
+    """Compute the extrema of shapes, taking transformations into account."""
+    coords = np.concatenate(shapes_data, axis=0)
+    return extrema_coords(coords, meta)
 
 
 def shapes_to_xml(data, meta):
