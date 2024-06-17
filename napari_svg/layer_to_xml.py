@@ -63,9 +63,9 @@ def layer_transforms_to_xml_string(meta):
     """
     scale = meta['scale'][::-1]
     translate = meta['translate'][::-1]
-    skewx = meta['shear'][0]
-    # skewy = meta['shear'][0]
     rotate = np.degrees(np.arctan2(meta['rotate'][0][1], meta['rotate'][1][1]))
+    # skewx = meta['shear'][0]
+    skewy = np.degrees(np.arctan2(meta['shear'][0]))
     # matrix elements after converting row-column to y, x, first
     # flipping the rows and then the first two columns of the matrix:
     # a c e   ->   b d f   ->   d b f
@@ -75,8 +75,8 @@ def layer_transforms_to_xml_string(meta):
         f'scale({scale[0]}, {scale[1]})',
         f'translate({translate[0]} {translate[1]})',
         f'rotate({rotate})',
-        f'skewX({skewx})',
-        # f'skewY({skewy})',
+        # f'skewX({skewx})',
+        f'skewY({skewy})',
         f'matrix({a} {b} {c} {d} {e} {f})',
     ]
     return ' '.join(strs[::-1])
