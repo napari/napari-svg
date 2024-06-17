@@ -4,6 +4,7 @@ import pytest
 from pathlib import Path
 from napari.layers import Image, Points, Labels, Shapes, Vectors
 from napari.utils.colormaps.colormap_utils import ensure_colormap
+from napari_svg.layer_to_xml import layer_transforms_to_xml_string
 from napari_svg import (
     napari_write_image,
     napari_write_labels,
@@ -164,6 +165,15 @@ def test_write_image_colormaps_vispy(tmpdir, layer_writer_and_data, path_ensure,
     assert os.path.isfile(path)
 
 
+NOOP_TRANSFORM = layer_transforms_to_xml_string({
+    'scale': [1.0, 1.0],
+    'translate': [0.0, 0.0],
+    'shear': [0.0],
+    'rotate': [[1.0, 0.0], [0.0, 1.0]],
+    'affine': [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+})
+NOOP_TRANSFORM_STR = f' transform="{NOOP_TRANSFORM}"'
+
 def test_write_points_with_attributes(request, tmp_path):
     data = [
         [0, 0],
@@ -191,4 +201,6 @@ def test_write_points_with_attributes(request, tmp_path):
     assert return_path == path
 
     expected_path = Path(__file__).parent / f'{test_name}-expected.svg'
-    assert path.read_text() == expected_path.read_text()
+    actual_text = path.read_text().replace(NOOP_TRANSFORM_STR, '')
+    expected_text = expected_path.read_text().replace(NOOP_TRANSFORM_STR, '')
+    assert actual_text == expected_text
