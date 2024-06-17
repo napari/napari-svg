@@ -72,7 +72,7 @@ def layer_transforms_to_xml_string(meta):
     # b d f   ->   a c e   ->   c a e
     d, b, f, c, a, e = np.asarray(meta['affine'])[:-1].ravel()
     strs = [
-        f'scale({scale[0]}, {scale[1]})',
+        f'scale({scale[0]} {scale[1]})',
         f'translate({translate[0]} {translate[1]})',
         f'rotate({rotate})',
         # f'skewX({skewx})',
