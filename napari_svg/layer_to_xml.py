@@ -70,7 +70,7 @@ def layer_transforms_to_xml_string(meta):
     # skew along x can be achieved by combining skewY with a rotation of the
     # same amount.
     # https://www.w3.org/TR/css-transforms-1/#funcdef-transform-skewy
-    skewy = np.degrees(np.arctan2(meta['shear'][0]))
+    skewy = np.degrees(np.arctan2(meta['shear'][0], 1))
     # matrix elements after converting row-column to y, x, first
     # flipping the rows and then the first two columns of the matrix:
     # a c e   ->   b d f   ->   d b f
