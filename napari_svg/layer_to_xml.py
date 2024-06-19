@@ -44,6 +44,79 @@ shape_type_to_xml = {
 }
 
 
+def layer_transforms_to_xml_string(meta):
+    """Get the xml representation[1]_[2]_ of the layer transforms.
+
+    Parameters
+    ----------
+    meta : dict
+        The metadata from the layer.
+
+    Returns
+    -------
+    tf_list : str
+        The transformation list represented as a string.
+
+    References
+    ----------
+    .. [1] https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+    .. [2] https://www.w3.org/TR/css-transforms-1/
+    """
+    scale = meta.get('scale', [1, 1])[::-1]
+    translate = meta.get('translate', [0, 0])[::-1]
+    rotmat = meta.get('rotate', [[1, 0], [0, 1]])
+    rotate = np.degrees(np.arctan2(rotmat[0][1], rotmat[1][1]))
+    # 'shear' in napari specifies the skew along the y-axis in CSS/SVG, but
+    # the latter is in degrees.
+    # skew along x can be achieved by combining skewY with a rotation of the
+    # same amount.
+    # https://www.w3.org/TR/css-transforms-1/#funcdef-transform-skewy
+    skewy = np.degrees(np.arctan2(meta.get('shear', [0])[0], 1))
+    # matrix elements after converting row-column to y, x, first
+    # flipping the rows and then the first two columns of the matrix:
+    # a c e   ->   b d f   ->   d b f
+    # b d f   ->   a c e   ->   c a e
+    d, b, f, c, a, e = np.asarray(meta.get('affine', np.eye(3)))[:-1].ravel()
+    strs = [
+        f'scale({scale[0]} {scale[1]})',
+        f'skewY({skewy})',
+        f'rotate({rotate})',
+        f'translate({translate[0]} {translate[1]})',
+        f'matrix({a} {b} {c} {d} {e} {f})',
+    ]
+    # Note: transforms are interpreted right-to-left in svg, so must be
+    # inverted here.
+    return ' '.join(strs[::-1])
+
+def make_linear_matrix_and_offset(meta):
+    """Make a transformation matrix from the layer metadata."""
+    rotate = np.array(meta.get('rotate', [[1, 0], [0, 1]]))
+    shear = np.array([[1, meta.get('shear', [0])[0]], [0, 1]])
+    scale = np.diag(meta.get('scale', [1, 1]))
+    translate = np.array(meta.get('translate', [0, 0]))
+    affine = np.array(meta.get('affine', np.eye(3)))
+    linear = affine[:2, :2]
+    affine_tr = affine[:2, 2]
+    matrix = linear @ (rotate @ shear @ scale)
+    offset = linear @ translate + affine_tr
+    return matrix, offset
+
+
+def extrema_coords(coords, meta):
+    """Compute the extrema of a set of coordinates after transforms in meta."""
+    matrix, offset = make_linear_matrix_and_offset(meta)
+    transformed_data = coords @ matrix.T + offset
+    return np.array([
+        np.min(transformed_data, axis=0), np.max(transformed_data, axis=0)
+    ])
+
+
+def extrema_image(image, meta):
+    """Compute the extrema of an image layer, accounting for transforms."""
+    coords = np.array([[0, 0], list(image.shape)])
+    return extrema_coords(coords, meta)
+
+
 def image_to_xml(data, meta):
     """Generates a xml data for an image.
 
@@ -106,7 +179,7 @@ def image_to_xml(data, meta):
         image = data
 
     # Find extrema of data
-    extrema = np.array([[0, 0], [image.shape[0], image.shape[1]]])
+    extrema = extrema_image(image, meta)
 
     if rgb:
         mapped_image = image
@@ -133,12 +206,27 @@ def image_to_xml(data, meta):
     width = str(image.shape[1])
     height = str(image.shape[0])
 
+    transform = layer_transforms_to_xml_string(meta)
+
     xml = Element(
-        'image', width=width, height=height, opacity=str(opacity), **props
+        'image',
+        width=width,
+        height=height,
+        opacity=str(opacity),
+        transform=transform,
+        **props,
     )
     xml_list = [xml]
 
     return xml_list, extrema
+
+
+def extrema_points(data, meta):
+    """Compute the extrema of points, taking transformations into account."""
+    # TODO: account for point sizes below, not just positions
+    # could do so by offsetting coordinates along both axes, see for example:
+    # https://github.com/scikit-image/scikit-image/blob/fa2a326a734c14b05c25057b03d31c84a6c8a635/skimage/morphology/convex_hull.py#L138-L140
+    return extrema_coords(data, meta)
 
 
 def points_to_xml(data, meta):
@@ -147,6 +235,10 @@ def points_to_xml(data, meta):
     Only two dimensional points data is supported. Z ordering of the points
     will be taken into account. Each point is represented by a circle. Support
     for other symbols is not yet implemented.
+
+    Note: any shear or anisotropic scaling value will be applied to the
+    points, so the markers themselves will be transformed and not perfect
+    circles anymore.
 
     Parameters
     ----------
@@ -205,7 +297,7 @@ def points_to_xml(data, meta):
         points = data
 
     # Find extrema of data
-    extrema = np.array([points.min(axis=0), points.max(axis=0)])
+    extrema = extrema_points(points, meta)
 
     # Ensure stroke width is an array to handle older versions of
     # napari (e.g. v0.4.0) where it could be a scalar.
@@ -213,6 +305,8 @@ def points_to_xml(data, meta):
 
     if meta.get('border_width_is_relative') or meta.get('edge_width_is_relative'):
         stroke_width *= size
+
+    transform = layer_transforms_to_xml_string(meta)
 
     xml_list = []
     for p, s, fc, sc, sw in zip(points, size, face_color, stroke_color, stroke_width):
@@ -228,11 +322,22 @@ def points_to_xml(data, meta):
             'opacity': str(opacity),
         }
         element = Element(
-            'circle', cx=cx, cy=cy, r=r, stroke=stroke, fill=fill, **props
+            'circle',
+            cx=cx, cy=cy, r=r,
+            stroke=stroke,
+            fill=fill,
+            transform=transform,
+            **props,
         )
         xml_list.append(element)
 
     return xml_list, extrema
+
+
+def extrema_shapes(shapes_data, meta):
+    """Compute the extrema of shapes, taking transformations into account."""
+    coords = np.concatenate(shapes_data, axis=0)
+    return extrema_coords(coords, meta)
 
 
 def shapes_to_xml(data, meta):
@@ -293,16 +398,20 @@ def shapes_to_xml(data, meta):
 
     if len(shapes) > 0:
         # Find extrema of data
-        mins = np.min([np.min(d, axis=0) for d in shapes], axis=0)
-        maxs = np.max([np.max(d, axis=0) for d in shapes], axis=0)
-        extrema = np.array([mins, maxs])
+        extrema = extrema_shapes(shapes, meta)
     else:
+        # use nan — these will be discarded when aggregating all layers
         extrema = np.full((2, 2), np.nan)
 
+    transform = layer_transforms_to_xml_string(meta)
     raw_xml_list = []
     zipped = zip(shapes, shape_type, face_color, edge_color, edge_width)
     for s, st, fc, ec, ew in zipped:
-        props = {'stroke-width': str(ew), 'opacity': str(opacity)}
+        props = {
+            'stroke-width': str(ew),
+            'opacity': str(opacity),
+            'transform': transform,
+        }
         fc_int = (255 * fc).astype(int)
         props['fill'] = f'rgb{tuple(fc_int[:3])}'
         ec_int = (255 * ec).astype(int)
@@ -315,6 +424,20 @@ def shapes_to_xml(data, meta):
     z_order = np.argsort(z_index)
     xml_list = [raw_xml_list[i] for i in z_order]
     return xml_list, extrema
+
+
+def extrema_vectors(vectors, meta):
+    """Compute the extrema of vectors, taking projections into account."""
+    length = meta.get('length', 1)
+    start_ends = np.empty(
+        (vectors.shape[0] * vectors.shape[1], vectors.shape[-1]),
+        dtype=vectors.dtype,
+    )
+    start_ends[:vectors.shape[0]] = vectors[:, 0, :]
+    start_ends[vectors.shape[0]:] = (
+        vectors[:, 0, :] + length * vectors[:, 1, :]
+    )
+    return extrema_coords(start_ends, meta)
 
 
 def vectors_to_xml(data, meta):
@@ -368,13 +491,14 @@ def vectors_to_xml(data, meta):
         vectors = data
 
     # Find extrema of data
-    full_vectors = copy(vectors)
-    full_vectors[:, 1, :] = vectors[:, 0, :] + length * vectors[:, 1, :]
-    mins = np.min(full_vectors, axis=(0, 1))
-    maxs = np.max(full_vectors, axis=(0, 1))
-    extrema = np.array([mins, maxs])
+    extrema = extrema_vectors(vectors, meta)
 
-    props = {'stroke-width': str(edge_width), 'opacity': str(opacity)}
+    transform = layer_transforms_to_xml_string(meta)
+    props = {
+        'stroke-width': str(edge_width),
+        'opacity': str(opacity),
+        'transform': transform,
+    }
 
     xml_list = []
     for v, ec in zip(vectors, edge_color):
