@@ -307,8 +307,8 @@ def points_to_xml(data, meta):
         stroke_width *= size
 
     transform = layer_transforms_to_xml_string(meta)
+    layer_xml = Element('g', transform=transform)
 
-    xml_list = []
     for p, s, fc, sc, sw in zip(points, size, face_color, stroke_color, stroke_width):
         cx = str(p[1])
         cy = str(p[0])
@@ -326,12 +326,11 @@ def points_to_xml(data, meta):
             cx=cx, cy=cy, r=r,
             stroke=stroke,
             fill=fill,
-            transform=transform,
             **props,
         )
-        xml_list.append(element)
+        layer_xml.append(element)
 
-    return xml_list, extrema
+    return layer_xml, extrema
 
 
 def extrema_shapes(shapes_data, meta):
@@ -404,13 +403,13 @@ def shapes_to_xml(data, meta):
         extrema = np.full((2, 2), np.nan)
 
     transform = layer_transforms_to_xml_string(meta)
+    layer_xml = Element('g', transform=transform)
     raw_xml_list = []
     zipped = zip(shapes, shape_type, face_color, edge_color, edge_width)
     for s, st, fc, ec, ew in zipped:
         props = {
             'stroke-width': str(ew),
             'opacity': str(opacity),
-            'transform': transform,
         }
         fc_int = (255 * fc).astype(int)
         props['fill'] = f'rgb{tuple(fc_int[:3])}'
@@ -421,9 +420,9 @@ def shapes_to_xml(data, meta):
         raw_xml_list.append(element)
 
     # reorder according to z-index
-    z_order = np.argsort(z_index)
-    xml_list = [raw_xml_list[i] for i in z_order]
-    return xml_list, extrema
+    for i in np.argsort(z_index):
+        layer_xml.append(raw_xml_list[i])
+    return layer_xml, extrema
 
 
 def extrema_vectors(vectors, meta):
@@ -494,13 +493,12 @@ def vectors_to_xml(data, meta):
     extrema = extrema_vectors(vectors, meta)
 
     transform = layer_transforms_to_xml_string(meta)
+    layer_xml = Element('g', transform=transform)
+
     props = {
         'stroke-width': str(edge_width),
         'opacity': str(opacity),
-        'transform': transform,
     }
-
-    xml_list = []
     for v, ec in zip(vectors, edge_color):
         x1 = str(v[0, -2])
         y1 = str(v[0, -1])
@@ -510,6 +508,7 @@ def vectors_to_xml(data, meta):
         stroke = f'rgb{tuple(ec_int[:3])}'
         props['stroke'] = stroke
         element = Element('line', x1=y1, y1=x1, x2=y2, y2=x2, **props)
-        xml_list.append(element)
+        layer_xml.append(element)
 
-    return xml_list, extrema
+
+    return layer_xml, extrema
