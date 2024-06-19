@@ -136,8 +136,8 @@ def image_to_xml(data, meta):
 
     Returns
     -------
-    xml_list : list of xml.etree.ElementTree.Element
-        List of a single xml element specifying the image as a png according to
+    layer_xml : xml.etree.ElementTree.Element
+        Single xml element specifying the image as a png according to
         the svg specification.
     extrema : array (2, 2)
         Extrema of data, specified as a minumum then maximum of the (x, y)
@@ -208,7 +208,7 @@ def image_to_xml(data, meta):
 
     transform = layer_transforms_to_xml_string(meta)
 
-    xml = Element(
+    layer_xml = Element(
         'image',
         width=width,
         height=height,
@@ -216,9 +216,8 @@ def image_to_xml(data, meta):
         transform=transform,
         **props,
     )
-    xml_list = [xml]
 
-    return xml_list, extrema
+    return layer_xml, extrema
 
 
 def extrema_points(data, meta):
@@ -249,9 +248,9 @@ def points_to_xml(data, meta):
 
     Returns
     -------
-    xml_list : list of xml.etree.ElementTree.Element
-        List of xml elements defining each point according to the
-        svg specification
+    layer_xml : xml.etree.ElementTree.Element
+        XML group element containing each point according to the
+        svg specification.
     extrema : array (2, 2)
         Extrema of data, specified as a minumum then maximum of the (x, y)
         coordinates.
@@ -354,8 +353,8 @@ def shapes_to_xml(data, meta):
 
     Returns
     -------
-    xml_list : list of xml.etree.ElementTree.Element
-        List of xml elements defining each shapes according to the
+    layer_xml : xml.etree.ElementTree.Element
+        XML group element containing each shape according to the
         svg specification
     extrema : array (2, 2)
         Extrema of data, specified as a minumum then maximum of the (x, y)
@@ -454,8 +453,8 @@ def vectors_to_xml(data, meta):
 
     Returns
     -------
-    xml_list : list of xml.etree.ElementTree.Element
-        List of xml elements defining each vector as a line according to the
+    layer_xml : xml.etree.ElementTree.Element
+        XML group element containing each vector as a line according to the
         svg specification
     extrema : array (2, 2)
         Extrema of data, specified as a minumum then maximum of the (x, y)
