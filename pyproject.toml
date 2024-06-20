@@ -2,7 +2,10 @@
 name = "napari-svg"
 description = "A plugin for writing svg files with napari"
 license = {text = "BSD-3"}
-authors = [{name = "Nicholas Sofroniew", email = "sofroniewn@gmail.com"}]
+authors = [
+  {name = "Nicholas Sofroniew", email = "sofroniewn@gmail.com"},
+  {name = "napari core devs", email = "napari-core-devs@googlegroups.com"},
+]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
