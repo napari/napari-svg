@@ -80,8 +80,8 @@ def writer(path, layer_data):
     full_extrema = None
     for ld in layer_data:
         function_string = ld[2] + '_to_xml(ld[0], ld[1])'
-        xml_list, extrema = eval(function_string)
-        full_xml_list += xml_list
+        layer_xml, extrema = eval(function_string)
+        full_xml_list.append(layer_xml)
         if full_extrema is None:
             full_extrema = extrema
         else:
@@ -140,10 +140,10 @@ def napari_write_image(path, data, meta):
         return None
 
     # Generate xml list and data extrema
-    xml_list, extrema = image_to_xml(data, meta)
+    layer_xml, extrema = image_to_xml(data, meta)
     
     # Generate svg string
-    svg = xml_to_svg(xml_list, extrema=extrema)
+    svg = xml_to_svg(layer_xml, extrema=extrema)
     
     # Write svg string
     with open(path, 'w') as file:
@@ -183,10 +183,10 @@ def napari_write_labels(path, data, meta):
         return None
 
     # Generate xml list and data extrema
-    xml_list, extrema = labels_to_xml(data, meta)
+    layer_xml, extrema = labels_to_xml(data, meta)
     
     # Generate svg string
-    svg = xml_to_svg(xml_list, extrema=extrema)
+    svg = xml_to_svg([layer_xml], extrema=extrema)
     
     # Write svg string
     with open(path, 'w') as file:
@@ -225,10 +225,10 @@ def napari_write_points(path, data, meta):
         return None
 
     # Generate xml list and data extrema
-    xml_list, extrema = points_to_xml(data, meta)
+    layer_xml, extrema = points_to_xml(data, meta)
     
     # Generate svg string
-    svg = xml_to_svg(xml_list, extrema=extrema)
+    svg = xml_to_svg([layer_xml], extrema=extrema)
     
     # Write svg string
     with open(path, 'w') as file:
@@ -266,10 +266,10 @@ def napari_write_shapes(path, data, meta):
         return None
 
     # Generate xml list and data extrema
-    xml_list, extrema = shapes_to_xml(data, meta)
+    layer_xml, extrema = shapes_to_xml(data, meta)
     
     # Generate svg string
-    svg = xml_to_svg(xml_list, extrema=extrema)
+    svg = xml_to_svg([layer_xml], extrema=extrema)
     
     # Write svg string
     with open(path, 'w') as file:
@@ -307,10 +307,10 @@ def napari_write_vectors(path, data, meta):
         return None
 
     # Generate xml list and data extrema
-    xml_list, extrema = vectors_to_xml(data, meta)
+    layer_xml, extrema = vectors_to_xml(data, meta)
     
     # Generate svg string
-    svg = xml_to_svg(xml_list, extrema=extrema)
+    svg = xml_to_svg([layer_xml], extrema=extrema)
     
     # Write svg string
     with open(path, 'w') as file:
