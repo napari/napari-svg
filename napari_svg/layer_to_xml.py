@@ -314,9 +314,9 @@ def points_to_xml(data, meta):
         cy = str(p[0])
         r = str(s / 2)
         fc_int = (255 * fc).astype(int)
-        fill = f'rgb{tuple(fc_int[:3])}'
+        fill = f'rgb{tuple(map(int, fc_int[:3]))}'
         sc_int = (255 * sc).astype(int)
-        stroke = f'rgb{tuple(sc_int[:3])}'
+        stroke = f'rgb{tuple(map(int, sc_int[:3]))}'
         props = {
             'stroke-width': str(sw),
             'opacity': str(opacity),
@@ -413,9 +413,9 @@ def shapes_to_xml(data, meta):
             'transform': transform,
         }
         fc_int = (255 * fc).astype(int)
-        props['fill'] = f'rgb{tuple(fc_int[:3])}'
+        props['fill'] = f'rgb{tuple(map(int, fc_int[:3]))}'
         ec_int = (255 * ec).astype(int)
-        props['stroke'] = f'rgb{tuple(ec_int[:3])}'
+        props['stroke'] = f'rgb{tuple(map(int, ec_int[:3]))}'
         shape_to_xml_func = shape_type_to_xml[st]
         element = shape_to_xml_func(s, props)
         raw_xml_list.append(element)
@@ -507,7 +507,7 @@ def vectors_to_xml(data, meta):
         x2 = str(v[0, -2] + length * v[1, -2])
         y2 = str(v[0, -1] + length * v[1, -1])
         ec_int = (255 * ec).astype(int)
-        stroke = f'rgb{tuple(ec_int[:3])}'
+        stroke = f'rgb{tuple(map(int, ec_int[:3]))}'
         props['stroke'] = stroke
         element = Element('line', x1=y1, y1=x1, x2=y2, y2=x2, **props)
         xml_list.append(element)
