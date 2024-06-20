@@ -1,3 +1,46 @@
+[project]
+name = "napari-svg"
+description = "A plugin for writing svg files with napari"
+license = {text = "BSD-3"}
+authors = [{name = "Nicholas Sofroniew", email = "sofroniewn@gmail.com"}]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Framework :: napari",
+  "Topic :: Software Development :: Testing",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent",
+  "License :: OSI Approved :: BSD License",
+]
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.9"
+dependencies = [
+  "imageio>=2.5.0",
+  "numpy>=1.16.0",
+  "vispy>=0.6.4",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+testing = [
+  "napari>=0.4",
+  "pyqt5",
+  "pytest",
+  "pytest-cov",
+]
+
+[project.entry-points."napari.manifest"]
+napari-svg = "napari_svg:napari.yaml"
+
+[project.urls]
+Source = 'https://github.com/napari/napari-svg'
+"Bug Tracker" = 'https://github.com/napari/napari-svg/issues'
+
 [build-system]
 requires = [
   "setuptools >= 56",
@@ -8,3 +51,16 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "napari_svg/_version.py"
+
+[tool.setuptools]
+include-package-data = true
+license-files = ['LICENSE']
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ['napari_svg']
+exclude = ['docs']
+namespaces = false
+
+[tool.setuptools.package-data]
+napari_svg = ['*napari.yaml']
