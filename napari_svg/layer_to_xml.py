@@ -289,6 +289,16 @@ def points_to_xml(data, meta):
     else:
         opacity = 1
 
+    if 'text' in meta:
+        text = meta['text']
+    else:
+        text = None
+
+    if 'font_size' in meta:
+        font_size = meta['font_size']
+    else:
+        font_size = '12'
+
     # Check if more than 2 dimensional and if so error.
     if data.shape[1] > 2:
         raise ValueError('Points must be 2 dimensional to save as svg')
@@ -303,12 +313,13 @@ def points_to_xml(data, meta):
     stroke_width = np.broadcast_to(stroke_width, (data.shape[0],)).copy()
 
     if meta.get('border_width_is_relative') or meta.get('edge_width_is_relative'):
-        stroke_width *= size
+        stroke_width = (stroke_width * size)
+
 
     transform = layer_transforms_to_xml_string(meta)
     layer_xml = Element('g', transform=transform)
 
-    for p, s, fc, sc, sw in zip(points, size, face_color, stroke_color, stroke_width):
+    for i, (p, s, fc, sc, sw) in enumerate(zip(points, size, face_color, stroke_color, stroke_width)):
         cx = str(p[1])
         cy = str(p[0])
         r = str(s / 2)
@@ -328,6 +339,19 @@ def points_to_xml(data, meta):
             **props,
         )
         layer_xml.append(element)
+
+
+        if text is not None and 'array' in text['string'] and text['visible']:
+            text_color_int = (255 * np.array(text['color']['constant'])).astype(int)
+            text_fill = f'rgba{tuple(map(int, text_color_int))}'
+            text_element = Element(
+                'text',
+                x=cx, y=cy,
+                fill=text_fill,
+                **{'font-size': str(text['size'])}
+            )
+            text_element.text = text['string']['array'][i]
+            layer_xml.append(text_element)
 
     return layer_xml, extrema
 
