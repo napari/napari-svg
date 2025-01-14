@@ -341,7 +341,7 @@ def points_to_xml(data, meta):
         layer_xml.append(element)
 
 
-        if 'array' in text['string'] and text['visible']:
+        if text is not None and 'array' in text['string'] and text['visible']:
             text_color_int = (255 * np.array(text['color']['constant'])).astype(int)
             text_fill = f'rgba{tuple(map(int, text_color_int))}'
             text_element = Element(
