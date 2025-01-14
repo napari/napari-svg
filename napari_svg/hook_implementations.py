@@ -143,7 +143,7 @@ def napari_write_image(path, data, meta):
     layer_xml, extrema = image_to_xml(data, meta)
     
     # Generate svg string
-    svg = xml_to_svg(layer_xml, extrema=extrema)
+    svg = xml_to_svg([layer_xml], extrema=extrema)
     
     # Write svg string
     with open(path, 'w') as file:
