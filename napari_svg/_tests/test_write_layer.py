@@ -95,6 +95,21 @@ def test_write_image_from_napari_layer_data(tmpdir, layer_writer_and_data):
     assert os.path.isfile(path)
 
 
+def test_write_rgb_image(tmp_path):
+    """Check that an rgb image can be correctly saved as svg."""
+    rng = np.random.default_rng(0)
+    image = np.random.randint(0, 256, size=(4, 4, 3), dtype=np.uint8)
+    path = tmp_path / 'rgb.svg'
+    return_path = napari_write_image(str(path), image, {'rgb': True})
+    assert str(path) == return_path
+    svg_txt = path.read_text()
+    assert 'data:image/png;base64' in svg_txt
+    # start and end of correct base64 encoding for this image
+    assert 'iVBOR' in svg_txt
+    assert 'uQmCC' in svg_txt
+
+
+
 def test_write_image_no_extension(tmpdir, layer_writer_and_data):
     """Test writing layer data with no extension."""
     writer, layer_data, _ = layer_writer_and_data

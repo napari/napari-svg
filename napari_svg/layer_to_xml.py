@@ -113,7 +113,7 @@ def extrema_coords(coords, meta):
 
 def extrema_image(image, meta):
     """Compute the extrema of an image layer, accounting for transforms."""
-    coords = np.array([[0, 0], list(image.shape)])
+    coords = np.array([[0, 0], list(image.shape[:2])])
     return extrema_coords(coords, meta)
 
 
