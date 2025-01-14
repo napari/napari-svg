@@ -204,3 +204,22 @@ def test_write_points_with_attributes(request, tmp_path):
     actual_text = path.read_text().replace(NOOP_TRANSFORM_STR, '')
     expected_text = expected_path.read_text().replace(NOOP_TRANSFORM_STR, '')
     assert actual_text == expected_text
+
+
+    def test_write_points_with_text(tmp_path):
+        data = [
+            [0, 0],
+            [0, 128],
+            [128, 128],
+        ]
+        text_data = ['car', 'crosswalk', 'bicycle']
+        layer = Points(data, text=text_data)
+        layer_data, layer_attrs, _ = layer.as_layer_data_tuple()
+
+        path = tmp_path / 'points-with-text.svg'
+        return_path = napari_write_points(path, layer_data, layer_attrs)
+        assert return_path == path
+
+        svg_text = path.read_text().replace(NOOP_TRANSFORM_STR, '')
+        for elem in text_data:
+            assert elem in svg_text
