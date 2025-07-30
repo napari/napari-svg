@@ -197,16 +197,16 @@ def test_write_points_with_attributes(request, tmp_path):
     ]
     size = [16, 20, 24]
     face_color = ['red', 'green', 'blue']
-    edge_color = ['cyan', 'magenta', 'yellow']
-    edge_width = [0.05, 0.25, 0.5]
+    border_color = ['cyan', 'magenta', 'yellow']
+    border_width = [0.05, 0.25, 0.5]
     layer = Points(
         data,
         opacity=0.5,
         size=size,
         face_color=face_color,
-        edge_color=edge_color,
-        edge_width=edge_width,
-        edge_width_is_relative=True,
+        border_color=border_color,
+        border_width=border_width,
+        border_width_is_relative=True,
     )
     test_name = request.node.name
     path = tmp_path / f'{test_name}-actual.svg'
